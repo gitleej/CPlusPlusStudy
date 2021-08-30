@@ -147,6 +147,5 @@ int main(int argc, char** argv) {
 	testFloatArr();
 
 	system("pause");
-
 	return 0;
 }
