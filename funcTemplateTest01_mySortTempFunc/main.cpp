@@ -142,9 +142,9 @@ void testFloatArr() {
 }
 
 int main(int argc, char** argv) {
-	testCharArr();
-	testIntArr();
-	testFloatArr();
+	testCharArr();		// 测试char型数组排序
+	testIntArr();		// 测试int型数组排序
+	testFloatArr();		// 测试float型数组排序
 
 	system("pause");
 	return 0;
