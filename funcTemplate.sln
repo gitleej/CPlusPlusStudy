@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "funcTemplateTest01_mySortTempFunc", "funcTemplateTest01_mySortTempFunc\funcTemplateTest01_mySortTempFunc.vcxproj", "{6AC70D4D-588F-43BA-885A-61ED8AD1DB89}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "funcTemplateTest02_myCompare", "funcTemplateTest02_myCompare\funcTemplateTest02_myCompare.vcxproj", "{8047B669-C727-4209-85B8-557705E9421D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{6AC70D4D-588F-43BA-885A-61ED8AD1DB89}.Release|x64.Build.0 = Release|x64
 		{6AC70D4D-588F-43BA-885A-61ED8AD1DB89}.Release|x86.ActiveCfg = Release|Win32
 		{6AC70D4D-588F-43BA-885A-61ED8AD1DB89}.Release|x86.Build.0 = Release|Win32
+		{8047B669-C727-4209-85B8-557705E9421D}.Debug|x64.ActiveCfg = Debug|x64
+		{8047B669-C727-4209-85B8-557705E9421D}.Debug|x64.Build.0 = Debug|x64
+		{8047B669-C727-4209-85B8-557705E9421D}.Debug|x86.ActiveCfg = Debug|Win32
+		{8047B669-C727-4209-85B8-557705E9421D}.Debug|x86.Build.0 = Debug|Win32
+		{8047B669-C727-4209-85B8-557705E9421D}.Release|x64.ActiveCfg = Release|x64
+		{8047B669-C727-4209-85B8-557705E9421D}.Release|x64.Build.0 = Release|x64
+		{8047B669-C727-4209-85B8-557705E9421D}.Release|x86.ActiveCfg = Release|Win32
+		{8047B669-C727-4209-85B8-557705E9421D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
