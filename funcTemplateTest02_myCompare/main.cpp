@@ -63,9 +63,6 @@ void test_01() {
 	else {
 		cout << "a != b" << endl;
 	}
-	{
-
-	}
 }
 
 /**
