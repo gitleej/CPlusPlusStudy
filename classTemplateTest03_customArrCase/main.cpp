@@ -1,4 +1,5 @@
 #include "MyArray.hpp"
+#include "Person.h"
 
 #include <iostream>
 
@@ -10,7 +11,7 @@ void printArray(MyArray<T>& arr)
 {
 	for (int i = 0; i < arr.getSize(); i++)
 	{
-		cout << arr[i] << " ";
+		cout << arr[i] << endl;
 	}
 	cout << endl;
 }
@@ -67,11 +68,57 @@ void test02()
 	cout << "arr3 capacity: " << arr3.getCapacity() << "\tarr3 size: " << arr3.getSize() << endl;
 }
 
+/**
+ * @brief	内置数据类型测试
+ */
+void test03()
+{
+	MyArray<Person> arr(10);
+
+	Person p1("张三", 10);
+	Person p2("李四", 20);
+	Person p3("王五", 30);
+	Person p4("赵六", 40);
+	Person p5("孙七", 50);
+
+	// 尾插
+	arr.pushBack(p1);
+	arr.pushBack(p2);
+	arr.pushBack(p3);
+	arr.pushBack(p4);
+	arr.pushBack(p5);
+
+	// 输出
+	printArray(arr);
+	cout << "arr capacity: " << arr.getCapacity() << "\tarr size: " << arr.getSize() << endl;
+
+	// 尾删
+	arr.popBack();
+	cout << "尾删后数据" << endl;
+	printArray(arr);
+	cout << "arr capacity: " << arr.getCapacity() << "\tarr size: " << arr.getSize() << endl;
+
+	// 指定位置插入
+	Person p6("钱八", 60);
+	arr.posInsert(7, p6);
+	cout << "指定位置插入后数据" << endl;
+	printArray(arr);
+	cout << "arr capacity: " << arr.getCapacity() << "\tarr size: " << arr.getSize() << endl;
+
+	// 指定位置删除
+	arr.posDelete(3);
+	cout << "指定位置删除后数据" << endl;
+	printArray(arr);
+	cout << "arr capacity: " << arr.getCapacity() << "\tarr size: " << arr.getSize() << endl;
+}
+
 int main(int argc, char** argv) 
 {
-	// test01();
+	test01();
 
 	test02();
+
+	test03();
 
 	system("pause");
 	return 0;
