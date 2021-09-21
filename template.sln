@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classTemplateTest01_clsObjA
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classTemplateTest02_clsTempSplitFile", "classTemplateTest02_clsTempSplitFile\classTemplateTest02_clsTempSplitFile.vcxproj", "{34F313E8-3E74-4FCC-8EC5-1661169D2290}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classTemplateTest03_customArrCase", "classTemplateTest03_customArrCase\classTemplateTest03_customArrCase.vcxproj", "{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{34F313E8-3E74-4FCC-8EC5-1661169D2290}.Release|x64.Build.0 = Release|x64
 		{34F313E8-3E74-4FCC-8EC5-1661169D2290}.Release|x86.ActiveCfg = Release|Win32
 		{34F313E8-3E74-4FCC-8EC5-1661169D2290}.Release|x86.Build.0 = Release|Win32
+		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Debug|x64.ActiveCfg = Debug|x64
+		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Debug|x64.Build.0 = Debug|x64
+		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Debug|x86.ActiveCfg = Debug|Win32
+		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Debug|x86.Build.0 = Debug|Win32
+		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Release|x64.ActiveCfg = Release|x64
+		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Release|x64.Build.0 = Release|x64
+		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Release|x86.ActiveCfg = Release|Win32
+		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
