@@ -69,7 +69,7 @@ void test02()
 }
 
 /**
- * @brief	内置数据类型测试
+ * @brief	自定义数据类型测试
  */
 void test03()
 {
