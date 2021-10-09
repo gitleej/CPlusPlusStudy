@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classTemplateTest02_clsTemp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classTemplateTest03_customArrCase", "classTemplateTest03_customArrCase\classTemplateTest03_customArrCase.vcxproj", "{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stlTest01_JudgeSystem", "stlTest01_JudgeSystem\stlTest01_JudgeSystem.vcxproj", "{EE9487FE-05F2-43C3-A987-ED1138E66712}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Release|x64.Build.0 = Release|x64
 		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Release|x86.ActiveCfg = Release|Win32
 		{5CAA1F78-2A74-4BC9-BB16-A555B9D076A6}.Release|x86.Build.0 = Release|Win32
+		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Debug|x64.ActiveCfg = Debug|x64
+		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Debug|x64.Build.0 = Debug|x64
+		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Debug|x86.ActiveCfg = Debug|Win32
+		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Debug|x86.Build.0 = Debug|Win32
+		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Release|x64.ActiveCfg = Release|x64
+		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Release|x64.Build.0 = Release|x64
+		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Release|x86.ActiveCfg = Release|Win32
+		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
