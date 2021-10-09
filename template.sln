@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classTemplateTest03_customA
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stlTest01_JudgeSystem", "stlTest01_JudgeSystem\stlTest01_JudgeSystem.vcxproj", "{EE9487FE-05F2-43C3-A987-ED1138E66712}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stlTest02_SetSort", "stlTest02_SetSort\stlTest02_SetSort.vcxproj", "{B9486801-09AF-481E-B570-A0B5C0E9896A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,14 @@ Global
 		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Release|x64.Build.0 = Release|x64
 		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Release|x86.ActiveCfg = Release|Win32
 		{EE9487FE-05F2-43C3-A987-ED1138E66712}.Release|x86.Build.0 = Release|Win32
+		{B9486801-09AF-481E-B570-A0B5C0E9896A}.Debug|x64.ActiveCfg = Debug|x64
+		{B9486801-09AF-481E-B570-A0B5C0E9896A}.Debug|x64.Build.0 = Debug|x64
+		{B9486801-09AF-481E-B570-A0B5C0E9896A}.Debug|x86.ActiveCfg = Debug|Win32
+		{B9486801-09AF-481E-B570-A0B5C0E9896A}.Debug|x86.Build.0 = Debug|Win32
+		{B9486801-09AF-481E-B570-A0B5C0E9896A}.Release|x64.ActiveCfg = Release|x64
+		{B9486801-09AF-481E-B570-A0B5C0E9896A}.Release|x64.Build.0 = Release|x64
+		{B9486801-09AF-481E-B570-A0B5C0E9896A}.Release|x86.ActiveCfg = Release|Win32
+		{B9486801-09AF-481E-B570-A0B5C0E9896A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
