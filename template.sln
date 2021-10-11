@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stlTest02_SetSort", "stlTes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stlTest03_StaffGrouping", "stlTest03_StaffGrouping\stlTest03_StaffGrouping.vcxproj", "{8742C188-ADA6-4B00-B841-B3AA6FC635A9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "practiceCase01_StaffManagementSystem", "practiceCase01_StaffManagementSystem\practiceCase01_StaffManagementSystem.vcxproj", "{5419EDA8-4663-4CE4-8398-F9069F8C3E58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +93,14 @@ Global
 		{8742C188-ADA6-4B00-B841-B3AA6FC635A9}.Release|x64.Build.0 = Release|x64
 		{8742C188-ADA6-4B00-B841-B3AA6FC635A9}.Release|x86.ActiveCfg = Release|Win32
 		{8742C188-ADA6-4B00-B841-B3AA6FC635A9}.Release|x86.Build.0 = Release|Win32
+		{5419EDA8-4663-4CE4-8398-F9069F8C3E58}.Debug|x64.ActiveCfg = Debug|x64
+		{5419EDA8-4663-4CE4-8398-F9069F8C3E58}.Debug|x64.Build.0 = Debug|x64
+		{5419EDA8-4663-4CE4-8398-F9069F8C3E58}.Debug|x86.ActiveCfg = Debug|Win32
+		{5419EDA8-4663-4CE4-8398-F9069F8C3E58}.Debug|x86.Build.0 = Debug|Win32
+		{5419EDA8-4663-4CE4-8398-F9069F8C3E58}.Release|x64.ActiveCfg = Release|x64
+		{5419EDA8-4663-4CE4-8398-F9069F8C3E58}.Release|x64.Build.0 = Release|x64
+		{5419EDA8-4663-4CE4-8398-F9069F8C3E58}.Release|x86.ActiveCfg = Release|Win32
+		{5419EDA8-4663-4CE4-8398-F9069F8C3E58}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
