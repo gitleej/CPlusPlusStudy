@@ -26,7 +26,8 @@ namespace Rule
         RULE_OK,                // 规则合格
         RULE_ZERO_NUMBER,       // 小于0的数
         RULE_TOTAL_LESS,        // 总数不足
-        RULE_SF_CANT_AVG,      // 半决赛分组
+        RULE_SF_CANT_AVG,       // 半决赛分组
+        RULE_SF_LESS_FINAL,     // 决赛人数少于3人
     }RuleErrorType;
 };
 

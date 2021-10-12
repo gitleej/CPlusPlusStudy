@@ -31,7 +31,7 @@ void SpeechRule::setRule()
         cin >> this->m_sfNextNum;
         this->m_finalsNum = this->m_sfGrpNum * this->m_sfNextNum;
         ret = checkRule();
-        while (ret == Rule::RULE_SF_CANT_AVG)
+        while (ret == Rule::RULE_SF_CANT_AVG || ret == Rule::RULE_SF_LESS_FINAL)
         {
             cout << ">>请输入复赛分组数：";
             cin >> this->m_sfGrpNum;
@@ -86,6 +86,7 @@ Rule::RuleErrorType SpeechRule::checkRule()
     else
     {
         // 海选符合规则，进行复赛规则检查
+        map<int, int> commonDivisor;
         if (this->m_sfGrpNum <=0 ||
             this->m_sfNextNum <=0)
         {
@@ -95,7 +96,6 @@ Rule::RuleErrorType SpeechRule::checkRule()
         }
         else if(((this->m_auditionNextNum * this->m_auditionGrpNum) % this->m_sfGrpNum) != 0)
         {
-            map<int, int> commonDivisor;
             this->getCommonDivisor(this->m_semi_finalsNum, commonDivisor);
             cout << "错误！复赛分组无法均匀分组！\n"
                 << "推荐分组数为：\n组数：\t每组人数\n";
@@ -107,7 +107,14 @@ Rule::RuleErrorType SpeechRule::checkRule()
         }
         else if ((this->m_sfGrpNum * this->m_sfNextNum) <= 3)
         {
-
+            this->getCommonDivisor(this->m_semi_finalsNum, commonDivisor);
+            cout << "错误！复赛晋级人数小于等于3人！请重新设置复赛分组方案。\n"
+                 << "推荐分组数为：\n组数：\t每组人数\n";
+            for (auto it = commonDivisor.begin(); it != commonDivisor.end(); it++)
+            {
+                cout << it->first << "\t" << it->second << endl;
+            }
+            return Rule::RULE_SF_LESS_FINAL;
         }
         return Rule::RULE_OK;
     }
