@@ -3,6 +3,7 @@
 #define _SPEECH_MANAGER_H_
 
 #include "SpeechRule.h"
+#include "ContestantManager.h"
 
 #include <iostream>
 
@@ -29,6 +30,8 @@ public:
     // 查看规则
     void showRules();
 
+    void contestantMangement();
+
     // 退出系统
     void exitSystem();
 
@@ -37,6 +40,7 @@ private:
 
 public:
     SpeechRule          *m_speechRule;          // 比赛规则
+    ContestantManager   *m_contestantManager;   // 选手信息管理
 
 private:
     bool                m_isSetRule;            // 是否已设置规则

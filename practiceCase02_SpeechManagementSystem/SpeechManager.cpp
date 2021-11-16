@@ -3,6 +3,7 @@
 SpeechManager::SpeechManager()
     : m_speechRule(new SpeechRule)
     , m_isSetRule(false)
+    , m_contestantManager(new ContestantManager)
 {
 }
 
@@ -42,6 +43,48 @@ void SpeechManager::showRules()
         cout << "错误！尚未发布比赛规则！请先发布比赛规则。" << endl;
     }
     system("pause");
+}
+
+void SpeechManager::contestantMangement()
+{
+    int choise = -1;
+    while (true)
+    {
+        this->m_contestantManager->showMenu();
+        cout << "请输入你的选择：";
+        cin >> choise;
+        switch (choise)
+        {
+        case 1:
+        {
+            m_contestantManager->addContestantInfo();
+            break;
+        }
+        case 2:
+        {
+            break;
+        }
+        case 3:
+        {
+            break;
+        }
+        case 4:
+        {
+            break;
+        }
+        case 5:
+        {
+            break;
+        }
+        default:
+            break;
+        }
+
+        if (choise == 0)
+        {
+            break;
+        }
+    }
 }
 
 void SpeechManager::exitSystem()

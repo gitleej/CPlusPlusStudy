@@ -68,6 +68,7 @@ int main(int argc, char **argv)
         }
         case 3: // [3] - 选手信息管理
         {
+            sm.contestantMangement();
             break;
         }
         case 4: // [4] - 开始演讲比赛
