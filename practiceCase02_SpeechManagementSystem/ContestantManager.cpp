@@ -1,6 +1,7 @@
 #include "ContestantManager.h"
 
-ContestantManager::ContestantManager()
+ContestantManager::ContestantManager(): 
+    m_num(0)
 {
 }
 
@@ -42,15 +43,17 @@ void ContestantManager::addContestantInfo()
     {
     case 1:
     {
+        addContestantInfoManually();
         break;
     }
     case 2:
     {
-        loadContestantInfoFromFile();
+        addContestantInfoFromFile();
         break;
     }
     case 3:
     {
+        addContestantInfoRandomly();
         break;
     }
     default:
@@ -60,7 +63,37 @@ void ContestantManager::addContestantInfo()
     system("pause");
 }
 
-void ContestantManager::loadContestantInfoFromFile()
+void ContestantManager::addContestantInfoManually()
+{
+    int totalNum = 0;
+    cout << "请输入需要添加参赛选手信息数量：";
+    cin >> totalNum;
+    for (int i = 0; i < totalNum; i++)
+    {
+        string tempStr;
+        cout << "请输入第 " << i + 1 << " 个参赛选手的姓名，年龄，和id(用空格分隔，如：xxx xx xxxxx)" << endl;
+        getline(cin, tempStr);
+        vector<string> result = Utils::Utils::strSplit(tempStr, ' ');
+        if (result.size() != 3)
+        {
+            cout << "【错误】：输入格式不正确，请检查后重试。" << endl;
+            i--;
+            continue;
+        }
+
+        ContestantType tempContestant;
+        tempContestant.name = result[0];
+        tempContestant.age = std::stoi(result[1]);
+        tempContestant.id = result[2];
+        this->m_contestants.push_back(tempContestant);
+        this->m_num++;
+    }
+
+    cout << "共添加 " << totalNum << " 个参赛选手信息。\n"
+        << "数据库中共有 " << this->m_num << " 个参赛选手信息。" << endl;
+}
+
+void ContestantManager::addContestantInfoFromFile()
 {
     string filePath;
     cout << "请输入文件路径：";
@@ -74,9 +107,53 @@ void ContestantManager::loadContestantInfoFromFile()
         return;
     }
 
+    int totalNum = 0;
     string line;
     while (getline(ifs, line))
     {
-        cout << line << endl;
+        vector<string> results = Utils::Utils::strSplit(line, ',');
+        if (results.size() == 3)
+        {
+            ContestantType tempContestant;
+            tempContestant.name = results[0];
+            tempContestant.age = std::stoi(results[1]);
+            tempContestant.id = results[2];
+            this->m_contestants.push_back(tempContestant);
+            totalNum++;
+            this->m_num++;
+        }
+    }
+
+    cout << "共添加 " << totalNum << " 个参赛选手信息。\n"
+        << "数据库中共有 " << this->m_num << " 个参赛选手信息。" << endl;
+}
+
+void ContestantManager::addContestantInfoRandomly()
+{
+    // 设置随机种子
+    srand((unsigned int)time(NULL));
+
+    int totalNum = 0;
+    cout << "请输入需要添加参赛选手信息数量：";
+    cin >> totalNum;
+    for (int i = 0; i < totalNum; i++)
+    {
+        string tempStr;
+        cout << "请输入第 " << i + 1 << " 个参赛选手的姓名，年龄，和id(用空格分隔，如：xxx xx xxxxx)" << endl;
+        getline(cin, tempStr);
+        vector<string> result = Utils::Utils::strSplit(tempStr, ' ');
+        if (result.size() != 3)
+        {
+            cout << "【错误】：输入格式不正确，请检查后重试。" << endl;
+            i--;
+            continue;
+        }
+
+        ContestantType tempContestant;
+        tempContestant.name = result[0];
+        tempContestant.age = std::stoi(result[1]);
+        tempContestant.id = result[2];
+        this->m_contestants.push_back(tempContestant);
+        this->m_num++;
     }
 }
