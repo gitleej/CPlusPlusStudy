@@ -47,6 +47,8 @@ void SpeechManager::showRules()
 
 void SpeechManager::contestantMangement()
 {
+    m_contestantManager->loadContestantInfo();
+
     int choise = -1;
     while (true)
     {
@@ -62,18 +64,22 @@ void SpeechManager::contestantMangement()
         }
         case 2:
         {
+            m_contestantManager->viewContestantInfo();
             break;
         }
         case 3:
         {
+            m_contestantManager->deletContestantInfo();
             break;
         }
         case 4:
         {
+            m_contestantManager->modifyContestantInfo();
             break;
         }
         case 5:
         {
+            m_contestantManager->saveContestantInfo();
             break;
         }
         default:
@@ -82,6 +88,20 @@ void SpeechManager::contestantMangement()
 
         if (choise == 0)
         {
+            if (!m_contestantManager->m_isSaveContestantInfo) {
+                getchar();
+                cout << "【警告】：有参赛选手信息改动未保存，请确认是否保存(y/"
+                        "n)：";
+                char confime = getchar();
+                if (confime == 'y') {
+                    m_contestantManager->saveContestantInfo();
+                } else {
+                    cout << "【提醒】：所以改动均不会保存，将直接退出当前菜单"
+                         << endl;
+                    system("pause");
+                }
+            }
+            m_contestantManager->m_isSaveContestantInfo = true;
             break;
         }
     }

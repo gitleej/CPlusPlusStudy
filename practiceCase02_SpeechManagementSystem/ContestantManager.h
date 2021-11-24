@@ -9,11 +9,17 @@
 #include <string>
 #include <fstream>
 #include <ctime>
+#include <map>
+#include <iomanip>
 
 using namespace std;
+using std::right;
+using std::left;
+using std::setw;
+using std::fixed;
+using std::string;
 
-class ContestantManager
-{
+class ContestantManager {
 public:
     ContestantManager();
     ~ContestantManager();
@@ -33,14 +39,39 @@ public:
     // 随机生成参赛选手信息
     void addContestantInfoRandomly();
 
-private:
-    string makeName();
-    string makeId();
+    // 查看参赛选手信息
+    void viewContestantInfo();
+
+    // 删除参赛选手信息
+    void deletContestantInfo();
+
+    // 修改选手信息
+    void modifyContestantInfo();
+
+    // 保存选手信息
+    void saveContestantInfo();
+
+    // 加载选手信息
+    void loadContestantInfo();
 
 private:
-    vector<ContestantType>          m_contestants;          ///< 参赛选手信息
-    int                             m_num;                  ///< 参赛选手人数
+    // 生成姓名
+    string makeName();
+    // 生成身份证id
+    map<string, int> makeId();
+    // 判断闰年
+    bool isLeapYear(int year);
+    // 查找身份证号
+    vector<ContestantType>::iterator findContestantId(string id);
+    // 查找姓名
+    vector<vector<ContestantType>::iterator> findContestantName(string name);
+
+public:
+    bool m_isSaveContestantInfo;           ///< 是否已保存参赛选手信息
+
+private:
+    vector<ContestantType> m_contestants;  ///< 参赛选手信息
+    int m_num;                             ///< 参赛选手人数
 };
 
-#endif // !_CONTESTANT_MANAGER_H_
-
+#endif  // !_CONTESTANT_MANAGER_H_
