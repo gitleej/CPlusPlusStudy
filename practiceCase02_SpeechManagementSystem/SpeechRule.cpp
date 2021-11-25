@@ -63,8 +63,24 @@ void SpeechRule::showRules()
         << "------------------------------------" << endl;
 }
 
-void SpeechRule::saveRule()
+void SpeechRule::saveRule(string filename)
 {
+    string filepath = "./data/rules/" + filename + ".csv";
+
+    ofstream ofs;
+    ofs.open(filepath.c_str(), std::ios::out | std::ios::trunc);
+    if (!ofs.is_open()) {
+        cout << "【错误】：文件不存在。" << filepath << endl;
+        return;
+    }
+
+    ofs << this->m_auditionNum << "," << this->m_auditionGrpNum << ","
+        << this->m_auditionNextNum << endl;
+    ofs << this->m_semi_finalsNum << "," << this->m_sfGrpNum << ","
+        << this->m_sfNextNum << endl;
+    ofs << this->m_finalsNum << endl;
+
+    ofs.close();
 }
 
 Rule::RuleErrorType SpeechRule::checkRule()

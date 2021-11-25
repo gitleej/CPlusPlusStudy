@@ -5,6 +5,7 @@
 #include "Utils.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -41,7 +42,7 @@ public:
 
     void showRules();
 
-    void saveRule();
+    void saveRule(string filename);
 
 private:
     // ºÏ≤ÈπÊ‘Ú
