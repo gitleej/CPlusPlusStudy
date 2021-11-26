@@ -49,52 +49,25 @@ int main(int argc, char **argv)
     
     while (true)
     {
-        sm.showMenu(MAIN_MENU);
-        // 接受菜单参数
-        cout << "请输入您的选择：" << endl;
-        cin >> choise;
+        // 检查是否有未完成的比赛，如果有显示未完成的比赛，如果没有，显示开始新比赛的菜单
+        if (sm.m_unfinishedContests.size() != 0) {
+            cout << "【提醒】：当前有一下为完成的比赛：" << endl;
+            sm.coutHistoryRecord(sm.m_unfinishedContests);
+            sm.showMenu(CONTINUE_MENU);
+            // 接受菜单参数
+            cout << "请输入您的选择：" << endl;
+            cin >> choise;
+            if (choise == 0) {
+                sm.exitSystem();
+                break;
+            } else if (choise == 1) {
+                sm.startNewContest();
+            }else if(choise == 2) {
+                sm.continueContest();
+            }
+        }
 
-        switch (choise)
-        {
-        case 1: // [1] - 发布比赛规则
-        {
-            sm.publishRules();
-            break;
-        }
-        case 2: // [2] - 查看比赛规则
-        {
-            sm.showRules();
-            break;
-        }
-        case 3: // [3] - 选手信息管理
-        {
-            sm.contestantMangement();
-            break;
-        }
-        case 4: // [4] - 开始演讲比赛
-        {
-            break;
-        }
-        case 5: // [5] - 查看比赛记录
-        {
-            break;
-        }
-        case 6: // [6] - 清空比赛记录
-        {
-            break;
-        }
-        case 0: // [0] - 退出    系统
-        {
-            sm.exitSystem();
-            break;
-        }
-        default:
-            system("cls");
-            break;
-        }
     }
-    
-
     system("pause");
     return 0;
 }
