@@ -585,3 +585,7 @@ void ContestantManager::loadContestantInfo(const string &timestamp) {
         }
     }
 }
+
+vector<ContestantType> ContestantManager::getContestantsInfo() {
+    return this->m_contestants;
+}

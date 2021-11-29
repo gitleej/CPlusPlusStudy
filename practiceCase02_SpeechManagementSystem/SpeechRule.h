@@ -46,7 +46,7 @@ public:
 
 private:
     // 检查规则
-    Rule::RuleErrorType checkRule();
+    Rule::RuleErrorType checkRule(int level);
     // 求所有公约数
     void getCommonDivisor(const int &src, map<int, int> &dst);
 

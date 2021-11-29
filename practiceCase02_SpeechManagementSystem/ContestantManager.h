@@ -57,6 +57,9 @@ public:
     void loadContestantInfo();
     void loadContestantInfo(const string &timestamp);
 
+    // 获取参赛选手信息
+    vector<ContestantType> getContestantsInfo();
+
 private:
     // 生成姓名
     string makeName();

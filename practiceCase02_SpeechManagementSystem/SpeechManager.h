@@ -9,6 +9,9 @@
 #include <iostream>
 #include <ctime>
 #include <cstdio>
+#include <algorithm>
+#include <random>
+#include <deque>
 
 using namespace std;
 
@@ -84,6 +87,14 @@ private:
     void startRematch();
     // 开始进行决赛
     void startFinals();
+    // 分组
+    void getGroup(vector<ContestantType> &src);
+    // 比赛
+    vector<ContestantType> startGame(
+        vector<ContestantType> &src,
+        int level);  // level 0,1,2->初赛、复赛、决赛
+    // 打分
+    float judge();
 
 public:
     SpeechRule          *m_speechRule;                      // 比赛规则
@@ -92,6 +103,10 @@ public:
     ContestProcessType m_contestProcess;                    // 比赛进度，1-发布规则，2-招募选手，3-初赛完成，4-复赛完成，0-比赛完成
     vector<map<string, ContestProcessType>> m_historyRecord;        // 历史记录
     vector<map<string, ContestProcessType>> m_unfinishedContests;   // 未完成的比赛
+    vector<vector<ContestantType>> m_contestantsGroup;              // 初赛选手分组
+    vector<vector<ContestantType>> m_contestantsRematchGroup;       // 复赛选手分组
+    vector<ContestantType> m_contestantsRematch;                    // 复赛选手
+    vector<ContestantType> m_contestantsFinals;                     // 决赛选手
 
 private:
     bool                m_isSetRule;            // 是否已设置规则

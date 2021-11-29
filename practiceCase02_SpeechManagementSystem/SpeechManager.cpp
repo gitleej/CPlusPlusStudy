@@ -538,6 +538,29 @@ void SpeechManager::checkRecordExist(const string &timestamp,
 
 void SpeechManager::startPreliminary() {
     cout << "【提醒】：正在进行初赛..." << endl;
+    vector<ContestantType> contestants =
+        this->m_contestantManager->getContestantsInfo();
+    // 如果报名人数超过预期海选人数，则按顺序取
+    vector<ContestantType> finalContestants(
+        contestants.begin(),
+        contestants.begin() + this->m_speechRule->m_auditionNum);
+    // 分组
+    getGroup(finalContestants);
+    // 比赛
+    for (auto it = this->m_contestantsGroup.begin();
+         it != this->m_contestantsGroup.end(); it++) {
+        cout << "【提醒】：第 "
+             << int(it - this->m_contestantsGroup.begin() + 1)
+             << " 组正在进行比赛..." << endl;
+        vector<ContestantType> groupResult = startGame(*it, 0);
+        this->m_contestantsRematch.insert(this->m_contestantsRematch.end,
+                                          groupResult.begin(),
+                                          groupResult.end());
+        cout << "【提醒】：第 "
+             << int(it - this->m_contestantsGroup.begin() + 1)
+             << " 组比赛完成。" << endl;
+    }
+    cout << "【提醒】：初赛结束。" << endl;
 }
 
 void SpeechManager::startRematch() {
@@ -546,4 +569,86 @@ void SpeechManager::startRematch() {
 
 void SpeechManager::startFinals() {
     cout << "【提醒】：正在进行决赛..." << endl;
+}
+
+void SpeechManager::getGroup(vector<ContestantType> &src) {
+    cout << "【提醒】：正在进行比赛分组..." << endl;
+    // 随机打乱
+    auto rng = std::default_random_engine{};
+    shuffle(src.begin(), src.end(), rng);
+
+    // 分组
+    vector<ContestantType> tempMap;
+    for (auto it = src.begin(); it != src.end(); it++) {
+        int index = (int)(it - src.begin());
+        if (index % this->m_speechRule->m_auditionGrpNum == 0 && tempMap.size() != 0) {
+            this->m_contestantsGroup.push_back(tempMap);
+            tempMap.clear();
+        }
+        it->score = {0.f, 0.f, 0.f};
+        tempMap.push_back(*it);
+    }
+    this->m_contestantsGroup.push_back(tempMap);
+    cout << "【提醒】：比赛分组完成。" << endl;
+}
+
+vector<ContestantType> SpeechManager::startGame(vector<ContestantType> &src, int level) {
+    map<float, ContestantType, greater<float>> groupResult;
+    for (auto it = src.begin(); it != src.end(); it++) {
+        float score = judge();
+        it->score.preliminaryScore = score;
+        groupResult.insert(make_pair(score, *it));
+    }
+
+    // 处理结果
+    vector<ContestantType> finalResult;
+    int count = 0;
+    for (auto it = groupResult.begin(); it != groupResult.end(); it++) {
+        if (level == 0) {
+            if (count == this->m_speechRule->m_auditionNextNum) {
+                break;
+            }
+            finalResult.push_back(it->second);
+            count++;
+        }
+        else if (level == 1) {
+            if (count == this->m_speechRule->m_sfNextNum) {
+                break;
+            }
+            finalResult.push_back(it->second);
+            count++;
+        } 
+        else if (level == 2) {
+            if (count == 3) {
+                break;
+            }
+            finalResult.push_back(it->second);
+            count++;
+        }
+    }
+    
+
+    // 返回晋级人员
+    return finalResult;
+}
+
+float SpeechManager::judge() {
+    deque<float> judgeScore(10, 0.f);
+    for (auto it = judgeScore.begin(); it != judgeScore.end(); it++) {
+        float score = (rand() % 41 + 60) / 10.f;
+        *it = score;
+    }
+    // 排序
+    sort(judgeScore.begin(), judgeScore.end());
+    // 去除最高分和最低分
+    judgeScore.pop_front();
+    judgeScore.pop_back();
+    // 求平均值
+    float sum = 0.f;
+    for (auto dit = judgeScore.begin(); dit != judgeScore.end(); dit++) {
+        sum += (*dit);
+    }
+    
+    float finalScore = float(sum / judgeScore.size());
+    return finalScore;
 }

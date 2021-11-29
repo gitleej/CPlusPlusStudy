@@ -24,13 +24,23 @@ void SpeechRule::setRule()
         cin >> this->m_auditionGrpNum;
         cout << ">>请输入海选每组晋级人数：";
         cin >> this->m_auditionNextNum;
+        ret = checkRule(0);
+        while (ret == Rule::RULE_SF_CANT_AVG || ret == Rule::RULE_TOTAL_LESS || ret == Rule::RULE_ZERO_NUMBER) {
+            cout << ">>请输入海选总人数：";
+            cin >> this->m_auditionNum;
+            cout << ">>请输入海选分组数：";
+            cin >> this->m_auditionGrpNum;
+            cout << ">>请输入海选每组晋级人数：";
+            cin >> this->m_auditionNextNum;
+            ret = checkRule(0);
+        }
         this->m_semi_finalsNum = this->m_auditionGrpNum * this->m_auditionNextNum;
         cout << ">>请输入复赛分组数：";
         cin >> this->m_sfGrpNum;
         cout << ">>请输入复赛每组晋级人数：";
         cin >> this->m_sfNextNum;
         this->m_finalsNum = this->m_sfGrpNum * this->m_sfNextNum;
-        ret = checkRule();
+        ret = checkRule(1);
         while (ret == Rule::RULE_SF_CANT_AVG || ret == Rule::RULE_SF_LESS_FINAL)
         {
             cout << ">>请输入复赛分组数：";
@@ -38,7 +48,7 @@ void SpeechRule::setRule()
             cout << ">>请输入复赛每组晋级人数：";
             cin >> this->m_sfNextNum;
             this->m_finalsNum = this->m_sfGrpNum * this->m_sfNextNum;
-            ret = checkRule();
+            ret = checkRule(1);
         }
     } while (Rule::RULE_OK != ret);
     showRules();
@@ -83,7 +93,7 @@ void SpeechRule::saveRule(string filename)
     ofs.close();
 }
 
-Rule::RuleErrorType SpeechRule::checkRule()
+Rule::RuleErrorType SpeechRule::checkRule(int level)
 {
     if (this->m_auditionGrpNum <= 0 ||
         this->m_auditionNextNum <= 0 ||
@@ -92,6 +102,11 @@ Rule::RuleErrorType SpeechRule::checkRule()
         cout << "错误！请检查规则参数！\n"
             << "海选总人数、海选分组数或海选每组晋级人数小于等于0。" << endl;
         return Rule::RULE_ZERO_NUMBER;
+    } 
+    else if (this->m_auditionNum % this->m_auditionGrpNum != 0) {
+        cout << "错误！请检查规则参数！\n"
+             << "海选分组无法均分，请重试！" << endl;
+        return Rule::RULE_SF_CANT_AVG;
     }
     else if (this->m_auditionNum <= ((this->m_auditionNextNum + 1) * this->m_auditionGrpNum))
     {
@@ -99,7 +114,7 @@ Rule::RuleErrorType SpeechRule::checkRule()
             << "海选总人数过少，不满足分组和晋级原则，(总人数 / 分组数) - 每组晋级人数 > 1。" << endl;
         return Rule::RULE_TOTAL_LESS;
     }
-    else
+    else if(level == 1)
     {
         // 海选符合规则，进行复赛规则检查
         map<int, int> commonDivisor;

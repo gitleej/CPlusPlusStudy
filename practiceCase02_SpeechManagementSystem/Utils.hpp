@@ -26,6 +26,17 @@ namespace Utils
         static void printContestantInfo(const ContestantType& contestant);
     };
 
+    template <class T>
+    class MyCompare {
+    public:
+        bool operator()(T v1, T v2);
+    };
+
+    template <class T>
+    bool MyCompare<T>::operator()(T v1, T v2) {
+        return v1 < v2;
+    }
+
 };
 
 #endif // !_UILTS_H_

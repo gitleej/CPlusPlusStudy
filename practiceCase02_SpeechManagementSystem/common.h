@@ -7,6 +7,12 @@
 
 using namespace std;
 
+typedef struct _SCORETYPE_ {
+    float preliminaryScore;  ///< 初赛得分
+    float rematchScore;      ///< 复赛得分
+    float finalsScore;       ///< 决赛得分
+} ScoreType;
+
 /**
  * @brief   参赛选手信息结构体
  */
@@ -14,6 +20,13 @@ typedef struct _ContestantType {
     string name;
     int age;
     string id;  ///< xxxxxx xxxxxxxx xxxx
+    ScoreType score;
+
+    bool operator<(const _ContestantType &p) const  //注意这里的两个const
+    {
+        return (name < p.name) || (name == p.name && age < p.age);
+    }
+
 } ContestantType;
 
 const vector<string> LastNames = {
