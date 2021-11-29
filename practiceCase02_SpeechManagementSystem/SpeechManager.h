@@ -57,6 +57,9 @@ public:
     void contestantMangement();
     void contestantMangement(const string &timestamp);
 
+    // 开始进行比赛
+    void startContest();
+
     // 退出系统
     void exitSystem();
 
@@ -75,6 +78,12 @@ private:
     // 检查是否有历史记录存在
     void checkRecordExist(const string &timestamp,
                           const ContestProcessType &contestProcess);
+    // 开始进行初赛
+    void startPreliminary();
+    // 开始进行复赛
+    void startRematch();
+    // 开始进行决赛
+    void startFinals();
 
 public:
     SpeechRule          *m_speechRule;                      // 比赛规则

@@ -197,7 +197,7 @@ void ContestantManager::addContestantInfoRandomly()
 void ContestantManager::viewContestantInfo() {
     system("cls");
     // 检查是否已经有选手
-    if (this->m_contestants.size() != 0) {
+    if (this->m_contestants.size() == 0) {
         cout << "【警告】：当前还没有招募到参赛选手，请先招募参赛选手。"
              << endl;
         system("pause");
@@ -230,7 +230,7 @@ void ContestantManager::viewContestantInfo() {
 
 int ContestantManager::deletContestantInfo() {
     // 检查是否已经有选手
-    if (this->m_contestants.size() != 0) {
+    if (this->m_contestants.size() == 0) {
         cout << "【警告】：当前还没有招募到参赛选手，请先招募参赛选手。"
              << endl;
         system("pause");
@@ -279,7 +279,7 @@ int ContestantManager::deletContestantInfo() {
 
 void ContestantManager::modifyContestantInfo() {
     // 检查是否已经有选手
-    if (this->m_contestants.size() != 0) {
+    if (this->m_contestants.size() == 0) {
         cout << "【警告】：当前还没有招募到参赛选手，请先招募参赛选手。"
              << endl;
         system("pause");
@@ -379,6 +379,13 @@ void ContestantManager::modifyContestantInfo() {
 }
 
 void ContestantManager::saveContestantInfo() {
+    // 检查是否已经有选手
+    if (this->m_contestants.size() == 0) {
+        cout << "【警告】：当前还没有招募到参赛选手，请先招募参赛选手。"
+             << endl;
+        system("pause");
+        return;
+    }
     string filePath = "./data/contestant_info/default.csv";
 
     ofstream ofs;

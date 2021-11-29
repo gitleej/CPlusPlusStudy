@@ -76,6 +76,7 @@ void SpeechManager::startNewContest() {
             }
             case 4:  // [4] - 开始演讲比赛
             {
+                startContest();
                 break;
             }
             case 5:  // [5] - 查看比赛记录
@@ -285,6 +286,69 @@ void SpeechManager::contestantMangement(const string &timestamp) {
     this->saveHistoryRecord();
 }
 
+void SpeechManager::startContest() {
+    // 根据比赛进程分别进入到不同的比赛阶段
+    switch (this->m_contestProcess) {
+        case PUBLISHING_RULES: {
+            cout << "【警告】：尚未进行参赛选手招募或参赛选手不足，无法开始比赛"
+                    "！"
+                 << endl;
+            break;
+        }
+        case RECRUITING_CONTESTANTS:{
+            // 开始初赛
+            startPreliminary();
+            cout << "【提醒】：是否继续进行比赛(y/n)：" << endl;
+            getchar();
+            char confime = getchar();
+            if ('n' == confime) {
+                // 更新状态
+                this->m_contestProcess = PRELIMINARY;
+                // 检查是否存在历史记录，不存在即添加，存在即修改历史记录的状态
+                this->checkRecordExist(this->m_contestStartTimestamp,
+                                       this->m_contestProcess);
+                // 保存历史记录进度
+                this->saveHistoryRecord();
+                break;
+            }
+        }
+        case PRELIMINARY:{
+            startRematch();
+            cout << "【提醒】：是否继续进行比赛(y/n)：" << endl;
+            getchar();
+            char confime = getchar();
+            if ('n' == confime) {
+                // 更新状态
+                this->m_contestProcess = REMATCH;
+                // 检查是否存在历史记录，不存在即添加，存在即修改历史记录的状态
+                this->checkRecordExist(this->m_contestStartTimestamp,
+                                       this->m_contestProcess);
+                // 保存历史记录进度
+                this->saveHistoryRecord();
+                break;
+            }
+        }
+        case REMATCH:{
+            startFinals();
+            // 更新状态
+            this->m_contestProcess = FINALS;
+            // 检查是否存在历史记录，不存在即添加，存在即修改历史记录的状态
+            this->checkRecordExist(this->m_contestStartTimestamp,
+                                   this->m_contestProcess);
+            // 保存历史记录进度
+            this->saveHistoryRecord();
+            break;
+        }
+        case FINALS:{
+            cout << "【提醒】：本次比赛已结束，请开始新的比赛。" << endl;
+            break;
+        }
+        default: break;
+    }
+
+    system("pause");
+}
+
 void SpeechManager::exitSystem() {
     cout << "已退出系统，欢迎下次使用。" << endl;
     exit(0);
@@ -470,4 +534,16 @@ void SpeechManager::checkRecordExist(const string &timestamp,
         tempMap.insert(make_pair(timestamp, contestProcess));
         this->m_historyRecord.push_back(tempMap);
     }
+}
+
+void SpeechManager::startPreliminary() {
+    cout << "【提醒】：正在进行初赛..." << endl;
+}
+
+void SpeechManager::startRematch() {
+    cout << "【提醒】：正在进行复赛..." << endl;
+}
+
+void SpeechManager::startFinals() {
+    cout << "【提醒】：正在进行决赛..." << endl;
 }
