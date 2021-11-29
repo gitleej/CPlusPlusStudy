@@ -51,6 +51,7 @@ int main(int argc, char **argv)
     {
         // 检查是否有未完成的比赛，如果有显示未完成的比赛，如果没有，显示开始新比赛的菜单
         if (sm.m_unfinishedContests.size() != 0) {
+            system("cls");
             cout << "【提醒】：当前有一下为完成的比赛：" << endl;
             sm.coutHistoryRecord(sm.m_unfinishedContests);
             sm.showMenu(CONTINUE_MENU);
@@ -64,9 +65,12 @@ int main(int argc, char **argv)
                 sm.startNewContest();
             }else if(choise == 2) {
                 sm.continueContest();
+            } else if (choise == 3) {
+                sm.removeHistory();
             }
+        } else {
+            sm.startNewContest();
         }
-
     }
     system("pause");
     return 0;

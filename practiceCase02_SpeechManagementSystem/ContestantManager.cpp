@@ -24,44 +24,78 @@ void ContestantManager::showMenu()
         << endl;
 }
 
-void ContestantManager::addContestantInfo()
-{
+//void ContestantManager::addContestantInfo()
+//{
+//    m_isSaveContestantInfo = false;
+//    system("cls");
+//    cout << "------------- 演讲比赛管理系统v1.0 -------------\n"
+//        << "|                 选手信息管理                 |\n"
+//        << "|[1] - 添加选手信息                            |\n"
+//        << "|    (1) - 手动添加参赛选手信息                |\n"
+//        << "|    (2) - 从文件导入参赛选手信息              |\n"
+//        << "|    (3) - 随机生成参赛选手信息                |\n"
+//        << "------------------------------------------------"
+//        << endl;
+//
+//    int choise = -1;
+//    cout << "请输入您的选择：" << endl;
+//    cin >> choise;
+//    switch (choise)
+//    {
+//    case 1:
+//    {
+//        addContestantInfoManually();
+//        break;
+//    }
+//    case 2:
+//    {
+//        addContestantInfoFromFile();
+//        break;
+//    }
+//    case 3:
+//    {
+//        addContestantInfoRandomly();
+//        break;
+//    }
+//    default:
+//        break;
+//    }
+//
+//    system("pause");
+//}
+
+int ContestantManager::addContestantInfo() {
     m_isSaveContestantInfo = false;
     system("cls");
     cout << "------------- 演讲比赛管理系统v1.0 -------------\n"
-        << "|                 选手信息管理                 |\n"
-        << "|[1] - 添加选手信息                            |\n"
-        << "|    (1) - 手动添加参赛选手信息                |\n"
-        << "|    (2) - 从文件导入参赛选手信息              |\n"
-        << "|    (3) - 随机生成参赛选手信息                |\n"
-        << "------------------------------------------------"
-        << endl;
+         << "|                 选手信息管理                 |\n"
+         << "|[1] - 添加选手信息                            |\n"
+         << "|    (1) - 手动添加参赛选手信息                |\n"
+         << "|    (2) - 从文件导入参赛选手信息              |\n"
+         << "|    (3) - 随机生成参赛选手信息                |\n"
+         << "------------------------------------------------" << endl;
 
     int choise = -1;
     cout << "请输入您的选择：" << endl;
     cin >> choise;
-    switch (choise)
-    {
-    case 1:
-    {
-        addContestantInfoManually();
-        break;
-    }
-    case 2:
-    {
-        addContestantInfoFromFile();
-        break;
-    }
-    case 3:
-    {
-        addContestantInfoRandomly();
-        break;
-    }
-    default:
-        break;
+    switch (choise) {
+        case 1: {
+            addContestantInfoManually();
+            break;
+        }
+        case 2: {
+            addContestantInfoFromFile();
+            break;
+        }
+        case 3: {
+            addContestantInfoRandomly();
+            break;
+        }
+        default: break;
     }
 
     system("pause");
+    return (int)(this->m_contestants.size());
 }
 
 void ContestantManager::addContestantInfoManually()
@@ -162,6 +196,14 @@ void ContestantManager::addContestantInfoRandomly()
 
 void ContestantManager::viewContestantInfo() {
     system("cls");
+    // 检查是否已经有选手
+    if (this->m_contestants.size() != 0) {
+        cout << "【警告】：当前还没有招募到参赛选手，请先招募参赛选手。"
+             << endl;
+        system("pause");
+        return;
+    }
+    
     cout << "------------- 演讲比赛管理系统v1.0 -------------\n"
          << "|                 选手信息管理                 |\n"
          << "|[2] - 查看选手信息                            |\n"
@@ -186,7 +228,15 @@ void ContestantManager::viewContestantInfo() {
     system("pause");
 }
 
-void ContestantManager::deletContestantInfo() {
+int ContestantManager::deletContestantInfo() {
+    // 检查是否已经有选手
+    if (this->m_contestants.size() != 0) {
+        cout << "【警告】：当前还没有招募到参赛选手，请先招募参赛选手。"
+             << endl;
+        system("pause");
+        return -1;
+    }
+
     m_isSaveContestantInfo = false;
     system("cls");
     cout << "------------- 演讲比赛管理系统v1.0 -------------\n"
@@ -200,7 +250,7 @@ void ContestantManager::deletContestantInfo() {
     if (tempId.size() != 18) {
         cout << "【错误】：id格式不正确，请重试！" << endl;
         system("pause");
-        return;
+        return -1;
     }
     vector<ContestantType>::iterator resultIter =
         this->findContestantId(tempId);
@@ -224,9 +274,18 @@ void ContestantManager::deletContestantInfo() {
     }
 
     system("pause");
+    return (int)(this->m_contestants.size());
 }
 
 void ContestantManager::modifyContestantInfo() {
+    // 检查是否已经有选手
+    if (this->m_contestants.size() != 0) {
+        cout << "【警告】：当前还没有招募到参赛选手，请先招募参赛选手。"
+             << endl;
+        system("pause");
+        return;
+    }
+
     m_isSaveContestantInfo = false;
     system("cls");
     cout << "------------- 演讲比赛管理系统v1.0 -------------\n"
@@ -340,6 +399,36 @@ void ContestantManager::saveContestantInfo() {
     system("pause");
 }
 
+void ContestantManager::saveContestantInfo(const string &timestamp) {
+    // 检查是否已经有选手
+    if (this->m_contestants.size() == 0) {
+        cout << "【警告】：当前还没有招募到参赛选手，请先招募参赛选手。"
+             << endl;
+        system("pause");
+        return;
+    }
+
+    string filePath = "./data/contestant_info/" + timestamp + ".csv";
+
+    ofstream ofs;
+    ofs.open(filePath.c_str(), std::ios::out | std::ios::trunc);
+    if (!ofs.is_open()) {
+        cout << "【错误】：文件不存在：" << filePath << endl;
+        return;
+    }
+
+    for (auto it = this->m_contestants.begin(); it != this->m_contestants.end();
+         it++) {
+        ofs << it->name << "," << it->age << "," << it->id << endl;
+    }
+
+    ofs.close();
+
+    m_isSaveContestantInfo = true;
+    cout << "【提醒】：参赛选手信息保存成功。" << endl;
+    system("pause");
+}
+
 string ContestantManager::makeName() {
     int nameLength = rand() % 2 + 1;
 
@@ -433,6 +522,36 @@ vector<vector<ContestantType>::iterator> ContestantManager::findContestantName(
 void ContestantManager::loadContestantInfo() {
     m_isSaveContestantInfo = true;
     string filePath = "./data/contestant_info/default.csv";
+
+    ifstream ifs;
+    ifs.open(filePath.c_str(), std::ios::in);
+    if (!ifs.is_open()) {
+        this->m_contestants.clear();
+        this->m_num = 0;
+        return;
+    }
+
+    // 重置
+    this->m_contestants.clear();
+    this->m_num = 0;
+
+    string line;
+    while (getline(ifs, line)) {
+        vector<string> results = Utils::Utils::strSplit(line, ',');
+        if (results.size() == 3) {
+            ContestantType tempContestant;
+            tempContestant.name = results[0];
+            tempContestant.age = std::stoi(results[1]);
+            tempContestant.id = results[2];
+            this->m_contestants.push_back(tempContestant);
+            this->m_num++;
+        }
+    }
+}
+
+void ContestantManager::loadContestantInfo(const string &timestamp) {
+    m_isSaveContestantInfo = true;
+    string filePath = "./data/contestant_info/" + timestamp +".csv";
 
     ifstream ifs;
     ifs.open(filePath.c_str(), std::ios::in);

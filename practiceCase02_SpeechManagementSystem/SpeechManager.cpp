@@ -1,33 +1,26 @@
 #include "SpeechManager.h"
 
 SpeechManager::SpeechManager()
-    : m_speechRule(new SpeechRule)
-    , m_isSetRule(false)
-    , m_contestantManager(new ContestantManager)
-    , m_contestStartTimestamp("")
-    , m_contestProcess(OTHERS)
-{
+    : m_speechRule(new SpeechRule),
+      m_isSetRule(false),
+      m_contestantManager(new ContestantManager),
+      m_contestStartTimestamp(""),
+      m_contestProcess(OTHERS) {
     this->loadHistoryRecode();
 }
 
-SpeechManager::~SpeechManager()
-{
-}
+SpeechManager::~SpeechManager() {}
 
-void SpeechManager::showMenu(MenuType menuType)
-{
-    switch (menuType)
-    {
-    case MAIN_MENU:
-    {
-        showMainMenu();
-        break;
-    }
-    case CONTINUE_MENU: {
-        showContinueMenu();
-    }
-    default:
-        break;
+void SpeechManager::showMenu(MenuType menuType) {
+    switch (menuType) {
+        case MAIN_MENU: {
+            showMainMenu();
+            break;
+        }
+        case CONTINUE_MENU: {
+            showContinueMenu();
+        }
+        default: break;
     }
 }
 
@@ -47,6 +40,17 @@ void SpeechManager::startNewContest() {
     m_contestantManager = new ContestantManager;
     m_contestStartTimestamp = "";
     m_contestProcess = OTHERS;
+
+    // 开始新比赛，记录比赛开始时间戳
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    char timestamp[24];
+
+    sprintf(timestamp, "%04d%02d%02d%02d%02d%02d", 1900 + ltm->tm_year,
+            1 + ltm->tm_mon, ltm->tm_mday, ltm->tm_hour, ltm->tm_min,
+            ltm->tm_sec);
+    this->m_contestStartTimestamp = timestamp;
+
     while (true) {
         showMainMenu();
         int choise = -1;
@@ -57,7 +61,7 @@ void SpeechManager::startNewContest() {
         switch (choise) {
             case 1:  // [1] - 发布比赛规则
             {
-                publishRules();
+                publishRules(this->m_contestStartTimestamp);
                 break;
             }
             case 2:  // [2] - 查看比赛规则
@@ -67,7 +71,7 @@ void SpeechManager::startNewContest() {
             }
             case 3:  // [3] - 选手信息管理
             {
-                contestantMangement();
+                contestantMangement(this->m_contestStartTimestamp);
                 break;
             }
             case 4:  // [4] - 开始演讲比赛
@@ -129,62 +133,65 @@ void SpeechManager::publishRules() {
     this->saveHistoryRecord();
 }
 
-void SpeechManager::showRules()
-{
-    if (m_isSetRule)
-    {
-        this->m_speechRule->showRules();
+void SpeechManager::publishRules(const string &timestamp) {
+    if (this->m_isSetRule) {
+        cout << "【提醒】：已发布规则，无需重复发布，请前往查看规则。" << endl;
+        system("pause");
+        return;
     }
-    else
-    {
+
+    this->m_speechRule->setRule();
+    this->m_speechRule->saveRule(timestamp);
+    this->m_isSetRule = true;
+    this->m_contestProcess = PUBLISHING_RULES;
+    // 检查是否存在历史记录，不存在即添加，存在即修改历史记录的状态
+    this->checkRecordExist(timestamp, this->m_contestProcess);
+    // 保存历史记录进度
+    this->saveHistoryRecord();
+}
+
+void SpeechManager::showRules() {
+    if (m_isSetRule) {
+        this->m_speechRule->showRules();
+    } else {
         cout << "错误！尚未发布比赛规则！请先发布比赛规则。" << endl;
     }
     system("pause");
 }
 
-void SpeechManager::contestantMangement()
-{
+void SpeechManager::contestantMangement() {
     m_contestantManager->loadContestantInfo();
 
     int choise = -1;
-    while (true)
-    {
+    while (true) {
         this->m_contestantManager->showMenu();
         cout << "请输入你的选择：";
         cin >> choise;
-        switch (choise)
-        {
-        case 1:
-        {
-            m_contestantManager->addContestantInfo();
-            break;
-        }
-        case 2:
-        {
-            m_contestantManager->viewContestantInfo();
-            break;
-        }
-        case 3:
-        {
-            m_contestantManager->deletContestantInfo();
-            break;
-        }
-        case 4:
-        {
-            m_contestantManager->modifyContestantInfo();
-            break;
-        }
-        case 5:
-        {
-            m_contestantManager->saveContestantInfo();
-            break;
-        }
-        default:
-            break;
+        switch (choise) {
+            case 1: {
+                m_contestantManager->addContestantInfo();
+                break;
+            }
+            case 2: {
+                m_contestantManager->viewContestantInfo();
+                break;
+            }
+            case 3: {
+                m_contestantManager->deletContestantInfo();
+                break;
+            }
+            case 4: {
+                m_contestantManager->modifyContestantInfo();
+                break;
+            }
+            case 5: {
+                m_contestantManager->saveContestantInfo();
+                break;
+            }
+            default: break;
         }
 
-        if (choise == 0)
-        {
+        if (choise == 0) {
             if (!m_contestantManager->m_isSaveContestantInfo) {
                 getchar();
                 cout << "【警告】：有参赛选手信息改动未保存，请确认是否保存(y/"
@@ -204,26 +211,164 @@ void SpeechManager::contestantMangement()
     }
 }
 
-void SpeechManager::exitSystem()
-{
+void SpeechManager::contestantMangement(const string &timestamp) {
+    // 检查是否已发布规则，未发布规则不能进行选手招募
+    if (!this->m_isSetRule) {
+        cout << "【警告】：尚未发布规则，无法进行参赛选手进行管理，请先发布规则"
+                "。"
+             << endl;
+        system("pause");
+        return;
+    }
+
+    m_contestantManager->loadContestantInfo(timestamp);
+
+    int choise = -1;
+    while (true) {
+        this->m_contestantManager->showMenu();
+        cout << "请输入你的选择：";
+        cin >> choise;
+        switch (choise) {
+            case 1: {
+                int totalNum = m_contestantManager->addContestantInfo();
+                if (totalNum >= this->m_speechRule->m_auditionNum) {
+                    this->m_contestProcess = RECRUITING_CONTESTANTS;
+                }
+                break;
+            }
+            case 2: {
+                m_contestantManager->viewContestantInfo();
+                break;
+            }
+            case 3: {
+                int totalNum = m_contestantManager->deletContestantInfo();
+                if (totalNum >= this->m_speechRule->m_auditionNum) {
+                    this->m_contestProcess = RECRUITING_CONTESTANTS;
+                } else {
+                    this->m_contestProcess = PUBLISHING_RULES;
+                }
+                break;
+            }
+            case 4: {
+                m_contestantManager->modifyContestantInfo();
+                break;
+            }
+            case 5: {
+                m_contestantManager->saveContestantInfo(timestamp);
+                break;
+            }
+            default: break;
+        }
+
+        if (choise == 0) {
+            if (!m_contestantManager->m_isSaveContestantInfo) {
+                getchar();
+                cout << "【警告】：有参赛选手信息改动未保存，请确认是否保存(y/"
+                        "n)：";
+                char confime = getchar();
+                if (confime == 'y') {
+                    m_contestantManager->saveContestantInfo(timestamp);
+                } else {
+                    cout << "【提醒】：所以改动均不会保存，将直接退出当前菜单"
+                         << endl;
+                    system("pause");
+                }
+            }
+            m_contestantManager->m_isSaveContestantInfo = true;
+            break;
+        }
+    }
+
+    // 检查是否存在历史记录，不存在即添加，存在即修改历史记录的状态
+    this->checkRecordExist(timestamp, this->m_contestProcess);
+    // 保存历史记录进度
+    this->saveHistoryRecord();
+}
+
+void SpeechManager::exitSystem() {
     cout << "已退出系统，欢迎下次使用。" << endl;
     exit(0);
 }
 
-void SpeechManager::showMainMenu()
-{
+void SpeechManager::removeHistory() {
+    cout << "【警告】：确认要清除所有历史记录？(y/n)：" << endl;
+    getchar();
+    char choise = getchar();
+    if ('y' != choise) {
+        cout << "【提醒】：清除所有历史记录操作已取消。" << endl;
+        system("pause");
+        return;
+    }
+
+    // 历史记录文件路径
+    string historyFilePath = "./data/history_record.csv";
+    for (auto it = this->m_historyRecord.begin();
+         it != this->m_historyRecord.end(); it++) {
+        string filename = it->begin()->first;
+        ContestProcessType contestProcess = it->begin()->second;
+        // 规则文件路径
+        string ruleFilePath = "./data/rules/" + filename + ".csv";
+        // 比赛结果文件路径
+        string contestResultFilePath =
+            "./data/contest_result/" + filename + ".csv";
+        // 参赛选手信息文件路径
+        string contestantInfoFilePath =
+            "./data/contestant_info/" + filename + ".csv";
+
+        // 返回值
+        int ret = 0;
+        // 清除比赛规则
+        ret = remove(ruleFilePath.c_str());
+        if (0 != ret) {
+            cout << "【错误】：文件不存在！" << ruleFilePath << endl;
+        }
+
+        // 清除参赛选手xinx
+        if (contestProcess != PUBLISHING_RULES) {
+            ret = remove(contestantInfoFilePath.c_str());
+            if (0 != ret) {
+                cout << "【错误】：文件不存在！" << contestantInfoFilePath
+                     << endl;
+            }
+        }
+        
+        // 清除比赛结果
+        if (contestProcess != RECRUITING_CONTESTANTS && contestProcess != PUBLISHING_RULES) {
+            ret = remove(contestResultFilePath.c_str());
+            if (0 != ret) {
+                cout << "【错误】：文件不存在！" << contestResultFilePath
+                     << endl;
+            }
+        } 
+    }
+
+    ofstream ofs;
+    ofs.open(historyFilePath.c_str(), std::ios::out | std::ios::trunc);
+    if (!ofs.is_open()) {
+        cout << "【错误】：文件不存在！" << historyFilePath << endl;
+    }
+    ofs.close();
+
+    this->m_historyRecord.clear();
+    this->m_unfinishedContests.clear();
+
+    cout << "【提醒】：所有历史记录已成功清除。" << endl;
+
+    system("pause");
+}
+
+void SpeechManager::showMainMenu() {
     system("cls");
     cout << "------------- 演讲比赛管理系统v1.0 -------------\n"
-        << "|                    主菜单                    |\n"
-        << "|[1] - 发布比赛规则                            |\n"
-        << "|[2] - 查看比赛规则                            |\n"
-        << "|[3] - 选手信息管理                            |\n"
-        << "|[4] - 开始演讲比赛                            |\n"
-        << "|[5] - 查看比赛记录                            |\n"
-        << "|[6] - 清空比赛记录                            |\n"
-        << "|[0] - 退出    系统                            |\n"
-        << "------------------------------------------------"
-        << endl;
+         << "|                    主菜单                    |\n"
+         << "|[1] - 发布比赛规则                            |\n"
+         << "|[2] - 查看比赛规则                            |\n"
+         << "|[3] - 选手信息管理                            |\n"
+         << "|[4] - 开始演讲比赛                            |\n"
+         << "|[5] - 查看比赛记录                            |\n"
+         << "|[6] - 清空比赛记录                            |\n"
+         << "|[0] - 退出    系统                            |\n"
+         << "------------------------------------------------" << endl;
 }
 
 void SpeechManager::showContinueMenu() {
@@ -231,6 +376,7 @@ void SpeechManager::showContinueMenu() {
          << "|                    主菜单                    |\n"
          << "|[1] - 开始新的比赛                            |\n"
          << "|[2] - 继续未完成的比赛                        |\n"
+         << "|[3] - 清除历史记录                            |\n"
          << "|[0] - 退出    系统                            |\n"
          << "------------------------------------------------" << endl;
 }
@@ -245,10 +391,11 @@ void SpeechManager::saveHistoryRecord() {
         return;
     }
 
-    for (auto it = this->m_historyRecord.begin(); it != this->m_historyRecord.end(); it++) {
+    for (auto it = this->m_historyRecord.begin();
+         it != this->m_historyRecord.end(); it++) {
         ofs << it->begin()->first << "," << it->begin()->second << endl;
     }
-    
+
     ofs.close();
 }
 
@@ -267,7 +414,7 @@ void SpeechManager::loadHistoryRecode() {
     while (getline(ifs, line)) {
         vector<string> tempStrs = Utils::Utils::strSplit(line, ',');
         switch (stoi(tempStrs[1])) {
-            case 0:{
+            case 0: {
                 map<string, ContestProcessType> tempMap;
                 tempMap.insert(make_pair(tempStrs[0], FINALS));
                 this->m_historyRecord.push_back(tempMap);
@@ -308,7 +455,8 @@ void SpeechManager::loadHistoryRecode() {
     ifs.close();
 }
 
-void SpeechManager::checkRecordExist(const string &timestamp, const ContestProcessType &contestProcess) {
+void SpeechManager::checkRecordExist(const string &timestamp,
+                                     const ContestProcessType &contestProcess) {
     // 检查是否存在历史记录，不存在即添加，存在即修改历史记录的状态
     auto it = this->m_historyRecord.begin();
     for (; it != this->m_historyRecord.end(); it++) {

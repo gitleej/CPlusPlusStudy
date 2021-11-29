@@ -28,7 +28,8 @@ public:
     void showMenu();
 
     // 添加参赛选手信息
-    void addContestantInfo();
+    // void addContestantInfo();
+    int addContestantInfo();
 
     // 手动添加参赛选手信息
     void addContestantInfoManually();
@@ -43,16 +44,18 @@ public:
     void viewContestantInfo();
 
     // 删除参赛选手信息
-    void deletContestantInfo();
+    int deletContestantInfo();
 
     // 修改选手信息
     void modifyContestantInfo();
 
     // 保存选手信息
     void saveContestantInfo();
+    void saveContestantInfo(const string &timestamp);
 
     // 加载选手信息
     void loadContestantInfo();
+    void loadContestantInfo(const string &timestamp);
 
 private:
     // 生成姓名

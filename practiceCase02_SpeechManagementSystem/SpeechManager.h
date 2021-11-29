@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <cstdio>
 
 using namespace std;
 
@@ -47,15 +48,20 @@ public:
 
     // 发布比赛规则
     void publishRules();
+    void publishRules(const string &timestamp);
     
     // 查看规则
     void showRules();
 
     // 参赛选手管理
     void contestantMangement();
+    void contestantMangement(const string &timestamp);
 
     // 退出系统
     void exitSystem();
+
+    // 清除历史记录
+    void removeHistory();
 
 private:
     // 显示主菜单
