@@ -25,12 +25,13 @@ void SpeechManager::showMenu(MenuType menuType) {
 }
 
 void SpeechManager::coutHistoryRecord(
-    const vector<map<string, ContestProcessType>> &src) {
+    const map<string, ContestProcessType> &src) {
+    int index = 0;
     for (auto it = src.begin(); it != src.end(); it++) {
-        int index = (int)(it - src.begin());
-        cout << "[" << right << setw(4) << fixed << index + 1 << "/" << left
-             << setw(4) << fixed << src.size() << "]: " << it->begin()->first
-             << "\t" << it->begin()->second << endl;
+        index++;
+        cout << "[" << right << setw(4) << fixed << index << "/" << left
+             << setw(4) << fixed << src.size() << "]: " << it->first
+             << "\t" << it->second << endl;
     }
 }
 
@@ -85,11 +86,12 @@ void SpeechManager::startNewContest() {
             }
             case 6:  // [6] - 清空比赛记录
             {
+                removeHistory(this->m_contestStartTimestamp);
                 break;
             }
             case 0:  // [0] - 退出    系统
             {
-                exitSystem();
+                // exitSystem();
                 break;
             }
             default: {
@@ -97,6 +99,9 @@ void SpeechManager::startNewContest() {
                 system("pause");
                 break;
             }
+        }
+        if (choise == 0) {
+            break;
         }
     }
 }
@@ -354,6 +359,21 @@ void SpeechManager::exitSystem() {
     exit(0);
 }
 
+void SpeechManager::reviewHistory() {
+    if (this->m_contestProcess == PUBLISHING_RULES ||
+        this->m_contestProcess == RECRUITING_CONTESTANTS ||
+        this->m_contestProcess == OTHERS) {
+        cout << "【提醒】：比赛尚未开始，还没有比赛记录。" << endl;
+        system("pause");
+        return;
+    }
+
+    loadContestResult(this->m_contestStartTimestamp);
+    switch (this->m_contestProcess) {
+        default: break;
+    }
+}
+
 void SpeechManager::removeHistory() {
     cout << "【警告】：确认要清除所有历史记录？(y/n)：" << endl;
     getchar();
@@ -368,8 +388,8 @@ void SpeechManager::removeHistory() {
     string historyFilePath = "./data/history_record.csv";
     for (auto it = this->m_historyRecord.begin();
          it != this->m_historyRecord.end(); it++) {
-        string filename = it->begin()->first;
-        ContestProcessType contestProcess = it->begin()->second;
+        string filename = it->first;
+        ContestProcessType contestProcess = it->second;
         // 规则文件路径
         string ruleFilePath = "./data/rules/" + filename + ".csv";
         // 比赛结果文件路径
@@ -421,6 +441,65 @@ void SpeechManager::removeHistory() {
     system("pause");
 }
 
+void SpeechManager::removeHistory(const string &timestamp) {
+    cout << "【警告】：确认要清除当前比赛记录？(y/n)：" << endl;
+    getchar();
+    char choise = getchar();
+    if ('y' != choise) {
+        cout << "【提醒】：清除当前比赛记录操作已取消。" << endl;
+        system("pause");
+        return;
+    }
+
+    // 规则文件路径
+    string ruleFilePath = "./data/rules/" + timestamp + ".csv";
+    // 比赛结果文件路径
+    string contestResultFilePath = "./data/contest_result/" + timestamp + ".csv";
+    // 参赛选手信息文件路径
+    string contestantInfoFilePath =
+        "./data/contestant_info/" + timestamp + ".csv";
+
+    // 返回值
+    int ret = 0;
+    // 清除比赛规则
+    ret = remove(ruleFilePath.c_str());
+    if (0 != ret) {
+        cout << "【错误】：文件不存在！" << ruleFilePath << endl;
+    }
+
+    // 清除参赛选手xinx
+    if (this->m_contestProcess != PUBLISHING_RULES) {
+        ret = remove(contestantInfoFilePath.c_str());
+        if (0 != ret) {
+            cout << "【错误】：文件不存在！" << contestantInfoFilePath << endl;
+        }
+    }
+
+    // 清除比赛结果
+    if (this->m_contestProcess != RECRUITING_CONTESTANTS &&
+        this->m_contestProcess != PUBLISHING_RULES) {
+        ret = remove(contestResultFilePath.c_str());
+        if (0 != ret) {
+            cout << "【错误】：文件不存在！" << contestResultFilePath << endl;
+        }
+    }
+
+    this->m_historyRecord.erase(timestamp);
+    this->m_unfinishedContests.erase(timestamp);
+    this->m_contestProcess = OTHERS;
+    this->m_isSetRule = false;
+    this->m_contestStartTimestamp.clear();
+    this->m_contestantsFinals.clear();
+    this->m_contestantsGroup.clear();
+    this->m_contestantsRematch.clear();
+    this->m_contestantsRematchGroup.clear();
+    saveHistoryRecord();
+
+    cout << "【提醒】：当前比赛记录已成功清除。" << endl;
+
+    system("pause");
+}
+
 void SpeechManager::showMainMenu() {
     system("cls");
     cout << "------------- 演讲比赛管理系统v1.0 -------------\n"
@@ -457,7 +536,7 @@ void SpeechManager::saveHistoryRecord() {
 
     for (auto it = this->m_historyRecord.begin();
          it != this->m_historyRecord.end(); it++) {
-        ofs << it->begin()->first << "," << it->begin()->second << endl;
+        ofs << it->first << "," << it->second << endl;
     }
 
     ofs.close();
@@ -479,37 +558,36 @@ void SpeechManager::loadHistoryRecode() {
         vector<string> tempStrs = Utils::Utils::strSplit(line, ',');
         switch (stoi(tempStrs[1])) {
             case 0: {
-                map<string, ContestProcessType> tempMap;
-                tempMap.insert(make_pair(tempStrs[0], FINALS));
-                this->m_historyRecord.push_back(tempMap);
+                this->m_historyRecord.insert(make_pair(tempStrs[0], FINALS));
                 break;
             }
             case 1: {
-                map<string, ContestProcessType> tempMap;
-                tempMap.insert(make_pair(tempStrs[0], PUBLISHING_RULES));
-                this->m_historyRecord.push_back(tempMap);
-                this->m_unfinishedContests.push_back(tempMap);
+                this->m_historyRecord.insert(
+                    make_pair(tempStrs[0], PUBLISHING_RULES));
+                this->m_unfinishedContests.insert(
+                    make_pair(tempStrs[0], PUBLISHING_RULES));
                 break;
             }
             case 2: {
-                map<string, ContestProcessType> tempMap;
-                tempMap.insert(make_pair(tempStrs[0], RECRUITING_CONTESTANTS));
-                this->m_historyRecord.push_back(tempMap);
-                this->m_unfinishedContests.push_back(tempMap);
+                this->m_historyRecord.insert(
+                    make_pair(tempStrs[0], RECRUITING_CONTESTANTS));
+                this->m_unfinishedContests.insert(
+                    make_pair(tempStrs[0], RECRUITING_CONTESTANTS));
                 break;
             }
             case 3: {
-                map<string, ContestProcessType> tempMap;
-                tempMap.insert(make_pair(tempStrs[0], PRELIMINARY));
-                this->m_historyRecord.push_back(tempMap);
-                this->m_unfinishedContests.push_back(tempMap);
+                this->m_historyRecord.insert(
+                    make_pair(tempStrs[0], PRELIMINARY));
+                this->m_unfinishedContests.insert(
+                    make_pair(tempStrs[0], PRELIMINARY));
                 break;
             }
             case 4: {
                 map<string, ContestProcessType> tempMap;
                 tempMap.insert(make_pair(tempStrs[0], REMATCH));
-                this->m_historyRecord.push_back(tempMap);
-                this->m_unfinishedContests.push_back(tempMap);
+                this->m_historyRecord.insert(make_pair(tempStrs[0], REMATCH));
+                this->m_unfinishedContests.insert(
+                    make_pair(tempStrs[0], REMATCH));
                 break;
             }
             default: break;
@@ -522,17 +600,20 @@ void SpeechManager::loadHistoryRecode() {
 void SpeechManager::checkRecordExist(const string &timestamp,
                                      const ContestProcessType &contestProcess) {
     // 检查是否存在历史记录，不存在即添加，存在即修改历史记录的状态
-    auto it = this->m_historyRecord.begin();
+    /*auto it = this->m_historyRecord.begin();
     for (; it != this->m_historyRecord.end(); it++) {
-        if (it->begin()->first == timestamp) {
-            (*it)[timestamp] = contestProcess;
+        if (it->first == timestamp) {
+            it->second = contestProcess;
             break;
         }
     }
     if (it == this->m_historyRecord.end()) {
-        map<string, ContestProcessType> tempMap;
-        tempMap.insert(make_pair(timestamp, contestProcess));
-        this->m_historyRecord.push_back(tempMap);
+        this->m_historyRecord.insert(make_pair(timestamp, contestProcess));
+    }*/
+
+    this->m_historyRecord.insert(make_pair(timestamp, contestProcess));
+    if (contestProcess != FINALS) {
+        this->m_unfinishedContests.insert(make_pair(timestamp, contestProcess));
     }
 }
 
@@ -591,6 +672,14 @@ void SpeechManager::startRematch() {
 
 void SpeechManager::startFinals() {
     cout << "【提醒】：正在进行决赛..." << endl;
+    vector<ContestantType> finalsResult =
+        startGame(this->m_contestantsFinals, 2);
+    cout << "【提醒】：决赛结束。" << endl;
+    
+    // 保存比赛结果
+    vector<vector<ContestantType>> finalsGroup;
+    finalsGroup.push_back(m_contestantsFinals);
+    this->saveContestResult(2, finalsGroup, finalsResult);
 }
 
 void SpeechManager::getGroup(int level, vector<ContestantType> &src, vector<vector<ContestantType>> &contestantsGroup) {
@@ -733,4 +822,29 @@ void SpeechManager::saveContestResult(
 
     cout << "【提醒】：比赛结果已保存。" << endl;
     ofs.close();
+}
+
+
+// TODO:
+void SpeechManager::loadContestResult(const string &timestamp) {
+    string filepath = "./data/contest_result/" + timestamp + ".csv";
+
+    ifstream ifs;
+    ifs.open(filepath.c_str(), std::ios::in);
+    if (!ifs.is_open()) {
+        cout << "【错误】：文件不存在。" << filepath << endl;
+        return;
+    }
+
+    string line;
+    while (getline(ifs, line)) {
+        vector<string> splitResult = Utils::Utils::strSplit(line, ',');
+        if (stod(splitResult[0]) == 0) {
+
+        } else if (stod(splitResult[0]) == 1) {
+
+        } else if (stod(splitResult[0]) == 2) {
+
+        }
+    }
 }

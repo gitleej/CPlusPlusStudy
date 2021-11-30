@@ -41,7 +41,7 @@ public:
     void showMenu(MenuType menuType);
 
     // 显示历史记录
-    void coutHistoryRecord(const vector<map<string, ContestProcessType>> &src);
+    void coutHistoryRecord(const map<string, ContestProcessType> &src);
 
     // 开始新的比赛
     void startNewContest();
@@ -66,8 +66,12 @@ public:
     // 退出系统
     void exitSystem();
 
+    // 查看比赛记录
+    void reviewHistory();
+
     // 清除历史记录
     void removeHistory();
+    void removeHistory(const string &timestamp);
 
 private:
     // 显示主菜单
@@ -102,14 +106,16 @@ private:
         const int level,
         const vector<vector<ContestantType>> &groupedContestants,
         const vector<ContestantType> &nextContestants);
+    // 加载比赛结果
+    void loadContestResult(const string &timestamp);
 
 public:
     SpeechRule          *m_speechRule;                      // 比赛规则
     ContestantManager   *m_contestantManager;               // 选手信息管理
     string m_contestStartTimestamp;                         // 比赛开始时间
     ContestProcessType m_contestProcess;                    // 比赛进度，1-发布规则，2-招募选手，3-初赛完成，4-复赛完成，0-比赛完成
-    vector<map<string, ContestProcessType>> m_historyRecord;        // 历史记录
-    vector<map<string, ContestProcessType>> m_unfinishedContests;   // 未完成的比赛
+    map<string, ContestProcessType> m_historyRecord;        // 历史记录
+    map<string, ContestProcessType> m_unfinishedContests;   // 未完成的比赛
     vector<vector<ContestantType>> m_contestantsGroup;              // 初赛选手分组
     vector<vector<ContestantType>> m_contestantsRematchGroup;       // 复赛选手分组
     vector<ContestantType> m_contestantsRematch;                    // 复赛选手
