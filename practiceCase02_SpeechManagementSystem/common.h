@@ -27,6 +27,14 @@ typedef struct _ContestantType {
         return (name < p.name) || (name == p.name && age < p.age);
     }
 
+    bool operator==(const _ContestantType &p) const {
+        if (name == p.name && age == p.age && id == p.id) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 } ContestantType;
 
 const vector<string> LastNames = {

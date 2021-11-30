@@ -88,13 +88,20 @@ private:
     // 开始进行决赛
     void startFinals();
     // 分组
-    void getGroup(vector<ContestantType> &src);
+    void getGroup(int level,
+                  vector<ContestantType> &src,
+                  vector<vector<ContestantType>> &contestantsGroup);
     // 比赛
     vector<ContestantType> startGame(
         vector<ContestantType> &src,
         int level);  // level 0,1,2->初赛、复赛、决赛
     // 打分
     float judge();
+    // 保存比赛结果
+    void saveContestResult(
+        const int level,
+        const vector<vector<ContestantType>> &groupedContestants,
+        const vector<ContestantType> &nextContestants);
 
 public:
     SpeechRule          *m_speechRule;                      // 比赛规则

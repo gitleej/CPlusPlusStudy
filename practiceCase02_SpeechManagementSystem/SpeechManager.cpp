@@ -545,7 +545,7 @@ void SpeechManager::startPreliminary() {
         contestants.begin(),
         contestants.begin() + this->m_speechRule->m_auditionNum);
     // 分组
-    getGroup(finalContestants);
+    getGroup(0, finalContestants, this->m_contestantsGroup);
     // 比赛
     for (auto it = this->m_contestantsGroup.begin();
          it != this->m_contestantsGroup.end(); it++) {
@@ -553,7 +553,7 @@ void SpeechManager::startPreliminary() {
              << int(it - this->m_contestantsGroup.begin() + 1)
              << " 组正在进行比赛..." << endl;
         vector<ContestantType> groupResult = startGame(*it, 0);
-        this->m_contestantsRematch.insert(this->m_contestantsRematch.end,
+        this->m_contestantsRematch.insert(this->m_contestantsRematch.end(),
                                           groupResult.begin(),
                                           groupResult.end());
         cout << "【提醒】：第 "
@@ -561,17 +561,39 @@ void SpeechManager::startPreliminary() {
              << " 组比赛完成。" << endl;
     }
     cout << "【提醒】：初赛结束。" << endl;
+
+    // 保存比赛结果
+    this->saveContestResult(0, m_contestantsGroup, m_contestantsRematch);
 }
 
 void SpeechManager::startRematch() {
     cout << "【提醒】：正在进行复赛..." << endl;
+    // 分组
+    getGroup(1, this->m_contestantsRematch, this->m_contestantsRematchGroup);
+    // 比赛
+    for (auto it = this->m_contestantsRematchGroup.begin(); it != this->m_contestantsRematchGroup.end(); it++) {
+        cout << "【提醒】：第 "
+             << int(it - this->m_contestantsRematchGroup.begin() + 1)
+             << " 组正在进行比赛..." << endl;
+        vector<ContestantType> groupResult = startGame(*it, 1);
+        this->m_contestantsFinals.insert(this->m_contestantsFinals.end(),
+                                          groupResult.begin(),
+                                          groupResult.end());
+        cout << "【提醒】：第 "
+             << int(it - this->m_contestantsRematchGroup.begin() + 1)
+             << " 组比赛完成。" << endl;
+    }
+
+    cout << "【提醒】：复赛结束。" << endl;
+    // 保存比赛结果
+    this->saveContestResult(1, m_contestantsRematchGroup, m_contestantsFinals);
 }
 
 void SpeechManager::startFinals() {
     cout << "【提醒】：正在进行决赛..." << endl;
 }
 
-void SpeechManager::getGroup(vector<ContestantType> &src) {
+void SpeechManager::getGroup(int level, vector<ContestantType> &src, vector<vector<ContestantType>> &contestantsGroup) {
     cout << "【提醒】：正在进行比赛分组..." << endl;
     // 随机打乱
     auto rng = std::default_random_engine{};
@@ -581,14 +603,24 @@ void SpeechManager::getGroup(vector<ContestantType> &src) {
     vector<ContestantType> tempMap;
     for (auto it = src.begin(); it != src.end(); it++) {
         int index = (int)(it - src.begin());
-        if (index % this->m_speechRule->m_auditionGrpNum == 0 && tempMap.size() != 0) {
-            this->m_contestantsGroup.push_back(tempMap);
-            tempMap.clear();
+        if (level == 0) {
+            it->score = {0.f, 0.f, 0.f};
+            if (index % (this->m_speechRule->m_auditionNum / this->m_speechRule->m_auditionGrpNum) == 0 &&
+                tempMap.size() != 0) {
+                contestantsGroup.push_back(tempMap);
+                tempMap.clear();
+            }
+        } else if (level == 1) {
+            if (index % (this->m_speechRule->m_semi_finalsNum / this->m_speechRule->m_sfGrpNum) == 0 &&
+                tempMap.size() != 0) {
+                contestantsGroup.push_back(tempMap);
+                tempMap.clear();
+            }
         }
-        it->score = {0.f, 0.f, 0.f};
+        
         tempMap.push_back(*it);
     }
-    this->m_contestantsGroup.push_back(tempMap);
+    contestantsGroup.push_back(tempMap);
     cout << "【提醒】：比赛分组完成。" << endl;
 }
 
@@ -596,7 +628,13 @@ vector<ContestantType> SpeechManager::startGame(vector<ContestantType> &src, int
     map<float, ContestantType, greater<float>> groupResult;
     for (auto it = src.begin(); it != src.end(); it++) {
         float score = judge();
-        it->score.preliminaryScore = score;
+        if (level == 0) {
+            it->score.preliminaryScore = score;
+        } else if (level == 1) {
+            it->score.rematchScore = score;
+        } else {
+            it->score.finalsScore = score;
+        }
         groupResult.insert(make_pair(score, *it));
     }
 
@@ -626,7 +664,6 @@ vector<ContestantType> SpeechManager::startGame(vector<ContestantType> &src, int
             count++;
         }
     }
-    
 
     // 返回晋级人员
     return finalResult;
@@ -651,4 +688,49 @@ float SpeechManager::judge() {
     
     float finalScore = float(sum / judgeScore.size());
     return finalScore;
+}
+
+void SpeechManager::saveContestResult(
+    const int level,
+    const vector<vector<ContestantType>> &groupedContestants,
+    const vector<ContestantType> &nextContestants) {
+    string filepath =
+        "./data/contest_result/" + this->m_contestStartTimestamp + ".csv";
+
+    // 检查文件是否存在
+    ifstream ifs(filepath.c_str());
+    ofstream ofs;
+    if (!ifs) {
+        ofs.open(filepath.c_str(), std::ios::out | std::ios::trunc);
+    } else {
+        ofs.open(filepath.c_str(), std::ios::out | std::ios::app);
+    }
+    if (!ofs.is_open()) {
+        cout << "【错误】：文件不存在。" << filepath << endl;
+        return;
+    }
+
+    for (auto it = groupedContestants.begin(); it != groupedContestants.end(); it++) {
+        int groupNum = (int)(it - groupedContestants.begin());
+        for (auto contestant = (*it).begin(); contestant != (*it).end(); contestant++) {
+            vector<ContestantType>::const_iterator iterRet = find(
+                nextContestants.begin(), nextContestants.end(), *contestant);
+            bool gotoNext = false;
+            if (iterRet != nextContestants.end()) {
+                gotoNext = true;
+            }
+            ofs << level << "," 
+                << groupNum << "," 
+                << contestant->name << ","
+                << contestant->age << "," 
+                << contestant->id << ","
+                << contestant->score.preliminaryScore << ","
+                << contestant->score.rematchScore << ","
+                << contestant->score.finalsScore << ","
+                << gotoNext << endl;
+        }
+    }
+
+    cout << "【提醒】：比赛结果已保存。" << endl;
+    ofs.close();
 }
