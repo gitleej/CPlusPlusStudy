@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common.cpp" />
     <ClCompile Include="ContestantManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SpeechManager.cpp" />

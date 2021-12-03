@@ -82,6 +82,7 @@ void SpeechManager::startNewContest() {
             }
             case 5:  // [5] - 查看比赛记录
             {
+                reviewHistory(this->m_contestStartTimestamp);
                 break;
             }
             case 6:  // [6] - 清空比赛记录
@@ -370,6 +371,39 @@ void SpeechManager::reviewHistory() {
 
     loadContestResult(this->m_contestStartTimestamp);
     switch (this->m_contestProcess) {
+        default: break;
+    }
+}
+
+void SpeechManager::reviewHistory(const string &timestamp) {
+    if (this->m_contestProcess == PUBLISHING_RULES ||
+        this->m_contestProcess == RECRUITING_CONTESTANTS ||
+        this->m_contestProcess == OTHERS) {
+        cout << "【提醒】：比赛尚未开始，还没有比赛记录。" << endl;
+        system("pause");
+        return;
+    }
+
+    // 加载比赛记录结果
+    loadContestResult(timestamp);
+
+    // 选择查看级别
+    int choise = 0;
+    cout << "【提醒】：请选择比赛级别(0-初赛，1-复赛，2-决赛)：" << endl;
+    cin >> choise;
+    switch (choise) {
+        case 0:{// 显示初赛成绩
+            showResultRecord(0, true, this->m_resultRecord[0]);
+            break;
+        }
+        case 1:{// 显示复赛成绩
+            showResultRecord(1, true, this->m_resultRecord[1]);
+            break;
+        }
+        case 2:{// 显示决赛成绩
+            showResultRecord(2, true, this->m_resultRecord[2]);
+            break;
+        }
         default: break;
     }
 }
@@ -836,15 +870,109 @@ void SpeechManager::loadContestResult(const string &timestamp) {
         return;
     }
 
+    // 清空缓存
+    this->m_resultRecord.clear();
+
     string line;
+    int tempLevel = 0;
+    int tempGroup = 0;
+    vector<ContestantType> tempGroupVec;        // 同组选手
+    vector<ContestantType> tempGroupNextVec;    // 同组晋级选手
+    vector<pair<vector<ContestantType>, vector<ContestantType>>> tempLevelVec;  // 同一场比赛选手
+    vector<vector<pair<vector<ContestantType>, vector<ContestantType>>>>
+        resultRecord;
     while (getline(ifs, line)) {
         vector<string> splitResult = Utils::Utils::strSplit(line, ',');
-        if (stod(splitResult[0]) == 0) {
+        int level = stoi(splitResult[0]);
+        int group = stoi(splitResult[1]);
+        ContestantType contestant;
+        contestant.name = splitResult[2];
+        contestant.age = stoi(splitResult[3]);
+        contestant.id = splitResult[4];
+        contestant.score.preliminaryScore = stof(splitResult[5]);
+        contestant.score.rematchScore = stof(splitResult[6]);
+        contestant.score.finalsScore = stof(splitResult[7]);
+        bool gotoNext = stoi(splitResult[8]);
 
-        } else if (stod(splitResult[0]) == 1) {
+        if (tempGroup != group) {
+            tempLevelVec.push_back(make_pair(tempGroupVec, tempGroupNextVec));
+            tempGroup = group;
+            tempGroupVec.clear();
+            tempGroupNextVec.clear();
+        }
 
-        } else if (stod(splitResult[0]) == 2) {
+        if (tempLevel != level) {
+            resultRecord.push_back(tempLevelVec);
+            tempLevel = level;
+            tempLevelVec.clear();
+        }
 
+        tempGroupVec.push_back(contestant);
+        if (gotoNext) {
+            tempGroupNextVec.push_back(contestant);
         }
     }
+    tempLevelVec.push_back(make_pair(tempGroupVec, tempGroupNextVec));
+    resultRecord.push_back(tempLevelVec);
+    this->m_resultRecord = resultRecord;
+
+    ifs.close();
+}
+
+void SpeechManager::showResultRecord(int level, bool isAll,
+    const vector<pair<vector<ContestantType>, vector<ContestantType>>> &src) {
+    if (isAll) {
+        for (auto it = src.begin(); it != src.end(); it++) {
+            vector<ContestantType> groupData = it->first;
+            int group = int(it - src.begin()) + 1;
+            if (level != 2) {
+                cout << "第 " << group << " 组参赛选手比赛结果：" << endl;
+            } else {
+                cout << "决赛结果：" << endl;
+            }
+            
+            for (auto contestant = groupData.begin(); contestant != groupData.end(); contestant++) {
+                cout << "[" << right << setw(2) << fixed
+                     << int(contestant - groupData.begin()) + 1 << "/" << left
+                     << setw(2) << fixed << groupData.size()
+                     << "]: " << *contestant << endl;
+            }
+            system("pause");
+        }
+    } else {
+        for (auto it = src.begin(); it != src.end(); it++) {
+            vector<ContestantType> groupGotoNextData = it->second;
+            int group = int(it - src.begin()) + 1;
+            if (level != 2) {
+                cout << "第 " << group << " 组晋级结果：" << endl;
+                for (auto contestant = groupGotoNextData.begin();
+                     contestant != groupGotoNextData.end(); contestant++) {
+                    cout << "[" << right << setw(2) << fixed
+                         << int(contestant - groupGotoNextData.begin()) + 1
+                         << "/" << left << setw(2) << fixed
+                         << groupGotoNextData.size() << "]: " << *contestant
+                         << endl;
+                }
+            } else {
+                cout << "决赛结果：" << endl;
+                map<float, ContestantType, greater<float>> tempMap;
+                for (auto  contestant = groupGotoNextData.begin(); contestant != groupGotoNextData.end(); contestant++) {
+                    tempMap.insert(
+                        make_pair(contestant->score.finalsScore, *contestant));
+                }
+                int count = 0;
+                for (auto mapIter = tempMap.begin(); mapIter != tempMap.end(); mapIter++) {
+                    if (count == 0) {
+                        cout << "***冠军***\n" << mapIter->second << endl;
+                    } else if(count == 1) {
+                        cout << "**亚军**\n" << mapIter->second << endl;
+                    } else {
+                        cout << "*季军*\n" << mapIter->second << endl;
+                    }
+                }
+            }
+            system("pause");
+        }
+    }
+    
 }

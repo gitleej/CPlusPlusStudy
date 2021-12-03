@@ -68,6 +68,7 @@ public:
 
     // 查看比赛记录
     void reviewHistory();
+    void reviewHistory(const string &timestamp);
 
     // 清除历史记录
     void removeHistory();
@@ -108,6 +109,12 @@ private:
         const vector<ContestantType> &nextContestants);
     // 加载比赛结果
     void loadContestResult(const string &timestamp);
+    // 显示记录结果
+    void showResultRecord(
+        int level,
+        bool isAll,
+        const vector<pair<vector<ContestantType>, vector<ContestantType>>>
+            &src);
 
 public:
     SpeechRule          *m_speechRule;                      // 比赛规则
@@ -120,6 +127,10 @@ public:
     vector<vector<ContestantType>> m_contestantsRematchGroup;       // 复赛选手分组
     vector<ContestantType> m_contestantsRematch;                    // 复赛选手
     vector<ContestantType> m_contestantsFinals;                     // 决赛选手
+    
+    // vector<vector<ContestantType>> m_resultRecord;                  // 历史记录
+    vector<vector<pair<vector<ContestantType>, vector<ContestantType>>>>
+        m_resultRecord;
 
 private:
     bool                m_isSetRule;            // 是否已设置规则

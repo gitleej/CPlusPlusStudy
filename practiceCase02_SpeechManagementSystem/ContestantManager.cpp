@@ -339,7 +339,7 @@ void ContestantManager::modifyContestantInfo() {
              << endl;
         for (auto it = retIters.begin(); it != retIters.end(); it++) {
             int index = (int)(it - retIters.begin());
-            cout << "[" << right << setw(4) << fixed << index + 1 << "/ "
+            cout << "[" << right << setw(4) << fixed << index + 1 << "/"
                  << left << setw(4) << fixed << this->m_num << "]: "
                  << "name: " << right << setw(20) << fixed << (*it)->name
                  << "\tage: " << (*it)->age << "\tid: " << (*it)->id << endl;
