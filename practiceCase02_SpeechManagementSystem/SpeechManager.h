@@ -41,7 +41,7 @@ public:
     void showMenu(MenuType menuType);
 
     // 显示历史记录
-    void coutHistoryRecord(const map<string, ContestProcessType> &src);
+    void coutHistoryRecord(const vector<pair<string, ContestProcessType>> &src);
 
     // 开始新的比赛
     void startNewContest();
@@ -121,8 +121,10 @@ public:
     ContestantManager   *m_contestantManager;               // 选手信息管理
     string m_contestStartTimestamp;                         // 比赛开始时间
     ContestProcessType m_contestProcess;                    // 比赛进度，1-发布规则，2-招募选手，3-初赛完成，4-复赛完成，0-比赛完成
-    map<string, ContestProcessType> m_historyRecord;        // 历史记录
-    map<string, ContestProcessType> m_unfinishedContests;   // 未完成的比赛
+    // map<string, ContestProcessType> m_historyRecord;        // 历史记录
+    vector<pair<string, ContestProcessType>> m_historyRecord;
+    // map<string, ContestProcessType> m_unfinishedContests;   // 未完成的比赛
+    vector<pair<string, ContestProcessType>> m_unfinishedContests;
     vector<vector<ContestantType>> m_contestantsGroup;              // 初赛选手分组
     vector<vector<ContestantType>> m_contestantsRematchGroup;       // 复赛选手分组
     vector<ContestantType> m_contestantsRematch;                    // 复赛选手

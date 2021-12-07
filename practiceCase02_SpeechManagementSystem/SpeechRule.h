@@ -44,6 +44,8 @@ public:
 
     void saveRule(string filename);
 
+    void loadRule(string filename);
+
 private:
     // ºÏ≤ÈπÊ‘Ú
     Rule::RuleErrorType checkRule(int level);

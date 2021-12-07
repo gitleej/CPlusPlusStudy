@@ -22,6 +22,9 @@ void ContestantManager::showMenu()
         << "|[0] - 退出当前菜单                            |\n"
         << "------------------------------------------------"
         << endl;
+    cout << "当前数据库中已录入 " << this->m_contestants.size()
+         << " 个参赛选手信息"
+         << endl;
 }
 
 //void ContestantManager::addContestantInfo()

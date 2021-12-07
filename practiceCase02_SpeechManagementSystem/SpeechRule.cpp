@@ -93,6 +93,35 @@ void SpeechRule::saveRule(string filename)
     ofs.close();
 }
 
+void SpeechRule::loadRule(string filename) {
+    string filepath = "./data/rules/" + filename + ".csv";
+
+    ifstream ifs;
+    ifs.open(filepath.c_str(), std::ios::in);
+    if (!ifs.is_open()) {
+        cout << "【错误】：文件不存在。" << filepath << endl;
+        return;
+    }
+
+    string line;
+    vector<string> tempStrSplitResult;
+    getline(ifs, line);
+    tempStrSplitResult = Utils::Utils::strSplit(line, ',');
+    this->m_auditionNum = stoi(tempStrSplitResult[0]);
+    this->m_auditionGrpNum = stoi(tempStrSplitResult[1]);
+    this->m_auditionNextNum = stoi(tempStrSplitResult[2]);
+    getline(ifs, line);
+    tempStrSplitResult = Utils::Utils::strSplit(line, ',');
+    this->m_semi_finalsNum = stoi(tempStrSplitResult[0]);
+    this->m_sfGrpNum = stoi(tempStrSplitResult[1]);
+    this->m_sfNextNum = stoi(tempStrSplitResult[2]);
+    getline(ifs, line);
+    tempStrSplitResult = Utils::Utils::strSplit(line, ',');
+    this->m_finalsNum = stoi(tempStrSplitResult[0]);
+
+    ifs.close();
+}
+
 Rule::RuleErrorType SpeechRule::checkRule(int level)
 {
     if (this->m_auditionGrpNum <= 0 ||

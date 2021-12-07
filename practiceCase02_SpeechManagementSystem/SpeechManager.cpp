@@ -25,7 +25,7 @@ void SpeechManager::showMenu(MenuType menuType) {
 }
 
 void SpeechManager::coutHistoryRecord(
-    const map<string, ContestProcessType> &src) {
+    const vector<pair<string, ContestProcessType>> &src) {
     int index = 0;
     for (auto it = src.begin(); it != src.end(); it++) {
         index++;
@@ -102,14 +102,46 @@ void SpeechManager::startNewContest() {
             }
         }
         if (choise == 0) {
-            break;
+            if (this->m_unfinishedContests.size() == 0) {
+                exitSystem();
+            } else {
+                break;
+            }
         }
     }
 }
 
 void SpeechManager::continueContest() {
-    coutHistoryRecord(this->m_historyRecord);
+    coutHistoryRecord(m_unfinishedContests);
     cout << "请选择需要继续进行的比赛序号：" << endl;
+    int whichContest = 0;
+    vector<pair<string, ContestProcessType>>::iterator iter =
+        this->m_unfinishedContests.begin();
+    cin >> whichContest;
+    iter = (iter + whichContest - 1);
+    
+    // 时间戳
+    this->m_contestStartTimestamp = iter->first;
+    // 比赛进度
+    this->m_contestProcess = iter->second;
+    // 加载数据
+    switch (this->m_contestProcess) {
+        case REMATCH: { // 加载复赛结果
+            ;
+        }
+        case PRELIMINARY: { // 加载初赛结果
+            ;
+        }
+        case RECRUITING_CONTESTANTS: { // 加载所有参赛选手数据
+            this->m_contestantManager->loadContestantInfo(
+                this->m_contestStartTimestamp);
+        }
+        case PUBLISHING_RULES: { // 加载比赛规则
+            this->m_speechRule->loadRule(this->m_contestStartTimestamp);
+            break;
+        }
+        default: break;
+    }
     showMainMenu();
 }
 
@@ -389,19 +421,23 @@ void SpeechManager::reviewHistory(const string &timestamp) {
 
     // 选择查看级别
     int choise = 0;
+    bool resultRange = true;
     cout << "【提醒】：请选择比赛级别(0-初赛，1-复赛，2-决赛)：" << endl;
     cin >> choise;
+    cout << "【提醒】：请选择比赛结果查看范围(0-晋级选手结果，1-所有选手结果)："
+         << endl;
+    cin >> resultRange;
     switch (choise) {
         case 0:{// 显示初赛成绩
-            showResultRecord(0, true, this->m_resultRecord[0]);
+            showResultRecord(0, resultRange, this->m_resultRecord[0]);
             break;
         }
         case 1:{// 显示复赛成绩
-            showResultRecord(1, true, this->m_resultRecord[1]);
+            showResultRecord(1, resultRange, this->m_resultRecord[1]);
             break;
         }
         case 2:{// 显示决赛成绩
-            showResultRecord(2, true, this->m_resultRecord[2]);
+            showResultRecord(2, resultRange, this->m_resultRecord[2]);
             break;
         }
         default: break;
@@ -518,8 +554,20 @@ void SpeechManager::removeHistory(const string &timestamp) {
         }
     }
 
-    this->m_historyRecord.erase(timestamp);
-    this->m_unfinishedContests.erase(timestamp);
+    // this->m_historyRecord.erase(timestamp);
+    for (auto it = this->m_historyRecord.begin(); it != this->m_historyRecord.end(); it++) {
+        if (it->first == timestamp) {
+            this->m_historyRecord.erase(it);
+            break;
+        }
+    }
+    // this->m_unfinishedContests.erase(timestamp);
+    for (auto it = this->m_unfinishedContests.begin(); it != this->m_unfinishedContests.end(); it++) {
+        if (it->first == timestamp) {
+            this->m_unfinishedContests.erase(it);
+            break;
+        }
+    }
     this->m_contestProcess = OTHERS;
     this->m_isSetRule = false;
     this->m_contestStartTimestamp.clear();
@@ -592,35 +640,51 @@ void SpeechManager::loadHistoryRecode() {
         vector<string> tempStrs = Utils::Utils::strSplit(line, ',');
         switch (stoi(tempStrs[1])) {
             case 0: {
-                this->m_historyRecord.insert(make_pair(tempStrs[0], FINALS));
+                // this->m_historyRecord.insert(make_pair(tempStrs[0], FINALS));
+                this->m_historyRecord.push_back(make_pair(tempStrs[0], FINALS));
                 break;
             }
             case 1: {
-                this->m_historyRecord.insert(
+                /*this->m_historyRecord.insert(
                     make_pair(tempStrs[0], PUBLISHING_RULES));
                 this->m_unfinishedContests.insert(
+                    make_pair(tempStrs[0], PUBLISHING_RULES));*/
+                this->m_historyRecord.push_back(
+                    make_pair(tempStrs[0], PUBLISHING_RULES));
+                this->m_unfinishedContests.push_back(
                     make_pair(tempStrs[0], PUBLISHING_RULES));
                 break;
             }
             case 2: {
-                this->m_historyRecord.insert(
+                /*this->m_historyRecord.insert(
                     make_pair(tempStrs[0], RECRUITING_CONTESTANTS));
                 this->m_unfinishedContests.insert(
+                    make_pair(tempStrs[0], RECRUITING_CONTESTANTS));*/
+                this->m_historyRecord.push_back(
+                    make_pair(tempStrs[0], RECRUITING_CONTESTANTS));
+                this->m_unfinishedContests.push_back(
                     make_pair(tempStrs[0], RECRUITING_CONTESTANTS));
                 break;
             }
             case 3: {
-                this->m_historyRecord.insert(
+                /*this->m_historyRecord.insert(
                     make_pair(tempStrs[0], PRELIMINARY));
                 this->m_unfinishedContests.insert(
+                    make_pair(tempStrs[0], PRELIMINARY));*/
+                this->m_historyRecord.push_back(
+                    make_pair(tempStrs[0], PRELIMINARY));
+                this->m_unfinishedContests.push_back(
                     make_pair(tempStrs[0], PRELIMINARY));
                 break;
             }
             case 4: {
                 map<string, ContestProcessType> tempMap;
                 tempMap.insert(make_pair(tempStrs[0], REMATCH));
-                this->m_historyRecord.insert(make_pair(tempStrs[0], REMATCH));
+                /*this->m_historyRecord.insert(make_pair(tempStrs[0], REMATCH));
                 this->m_unfinishedContests.insert(
+                    make_pair(tempStrs[0], REMATCH));*/
+                this->m_historyRecord.push_back(make_pair(tempStrs[0], REMATCH));
+                this->m_unfinishedContests.push_back(
                     make_pair(tempStrs[0], REMATCH));
                 break;
             }
@@ -634,7 +698,7 @@ void SpeechManager::loadHistoryRecode() {
 void SpeechManager::checkRecordExist(const string &timestamp,
                                      const ContestProcessType &contestProcess) {
     // 检查是否存在历史记录，不存在即添加，存在即修改历史记录的状态
-    /*auto it = this->m_historyRecord.begin();
+    auto it = this->m_historyRecord.begin();
     for (; it != this->m_historyRecord.end(); it++) {
         if (it->first == timestamp) {
             it->second = contestProcess;
@@ -642,13 +706,33 @@ void SpeechManager::checkRecordExist(const string &timestamp,
         }
     }
     if (it == this->m_historyRecord.end()) {
-        this->m_historyRecord.insert(make_pair(timestamp, contestProcess));
-    }*/
-
-    this->m_historyRecord.insert(make_pair(timestamp, contestProcess));
-    if (contestProcess != FINALS) {
-        this->m_unfinishedContests.insert(make_pair(timestamp, contestProcess));
+        this->m_historyRecord.push_back(make_pair(timestamp, contestProcess));
     }
+
+    auto unfinishedIter = this->m_unfinishedContests.begin();
+    for (; unfinishedIter != this->m_unfinishedContests.end(); unfinishedIter++) {
+        if ((unfinishedIter->first == timestamp) &&
+            (contestProcess != FINALS)) {
+            unfinishedIter->second = contestProcess;
+            break;
+        } else if ((unfinishedIter->first == timestamp) &&
+                   (contestProcess == FINALS)) {
+            this->m_unfinishedContests.erase(unfinishedIter);
+        }
+    }
+    if (unfinishedIter == this->m_unfinishedContests.end() && contestProcess != FINALS) {
+        this->m_unfinishedContests.push_back(
+            make_pair(timestamp, contestProcess));
+    }
+
+    //this->m_historyRecord[timestamp] = contestProcess;
+    //// this->m_historyRecord.insert(make_pair(timestamp, contestProcess));
+    //if (contestProcess != FINALS) {
+    //    this->m_unfinishedContests[timestamp] = contestProcess;
+    //    // this->m_unfinishedContests.insert(make_pair(timestamp, contestProcess));
+    //} else {
+    //    this->m_unfinishedContests.erase(timestamp);
+    //}
 }
 
 void SpeechManager::startPreliminary() {
@@ -969,6 +1053,7 @@ void SpeechManager::showResultRecord(int level, bool isAll,
                     } else {
                         cout << "*季军*\n" << mapIter->second << endl;
                     }
+                    count++;
                 }
             }
             system("pause");
