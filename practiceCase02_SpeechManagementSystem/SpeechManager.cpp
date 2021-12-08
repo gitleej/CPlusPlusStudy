@@ -112,37 +112,121 @@ void SpeechManager::startNewContest() {
 }
 
 void SpeechManager::continueContest() {
+    m_speechRule = new SpeechRule;
+    m_isSetRule = false;
+    m_contestantManager = new ContestantManager;
+    m_contestStartTimestamp = "";
+    m_contestProcess = OTHERS;
+
     coutHistoryRecord(m_unfinishedContests);
     cout << "请选择需要继续进行的比赛序号：" << endl;
     int whichContest = 0;
     vector<pair<string, ContestProcessType>>::iterator iter =
         this->m_unfinishedContests.begin();
     cin >> whichContest;
+    while (whichContest > this->m_unfinishedContests.size()) {
+        cout << "【错误】：输入的序号不在范围内，请重新输入。" << endl;
+        coutHistoryRecord(m_unfinishedContests);
+        cout << "请选择需要继续进行的比赛序号：" << endl;
+        cin >> whichContest;
+    }
     iter = (iter + whichContest - 1);
-    
+
     // 时间戳
     this->m_contestStartTimestamp = iter->first;
     // 比赛进度
     this->m_contestProcess = iter->second;
     // 加载数据
-    switch (this->m_contestProcess) {
-        case REMATCH: { // 加载复赛结果
-            ;
+    if (this->m_contestProcess >= PRELIMINARY) {
+        this->m_isSetRule = true;
+        // 加载比赛记录
+        loadContestResult(this->m_contestStartTimestamp);
+        if (this->m_contestProcess == PRELIMINARY) {
+            this->m_contestantsRematch.clear();
+            this->m_contestantsRematchGroup.clear();
+            for (auto it = this->m_resultRecord[0].begin(); it != this->m_resultRecord[0].end(); it++) {
+                this->m_contestantsRematch.insert(
+                    this->m_contestantsRematch.begin(), it->second.begin(),
+                    it->second.end());
+            }
+            
+        } else if (this->m_contestProcess == REMATCH) {
+            this->m_contestantsFinals.clear();
+            for (auto it = this->m_resultRecord[1].begin();
+                 it != this->m_resultRecord[1].end(); it++) {
+                this->m_contestantsFinals.insert(
+                    this->m_contestantsFinals.begin(), it->second.begin(),
+                    it->second.end());
+            }
         }
-        case PRELIMINARY: { // 加载初赛结果
-            ;
-        }
-        case RECRUITING_CONTESTANTS: { // 加载所有参赛选手数据
-            this->m_contestantManager->loadContestantInfo(
-                this->m_contestStartTimestamp);
-        }
-        case PUBLISHING_RULES: { // 加载比赛规则
-            this->m_speechRule->loadRule(this->m_contestStartTimestamp);
-            break;
-        }
-        default: break;
+    } 
+    if (this->m_contestProcess >= RECRUITING_CONTESTANTS) {
+        this->m_contestantManager->loadContestantInfo(
+            this->m_contestStartTimestamp);
+        this->m_isSetRule = true;
+    } 
+    if (this->m_contestProcess >=  PUBLISHING_RULES) {
+        this->m_speechRule->loadRule(this->m_contestStartTimestamp);
+        this->m_isSetRule = true;
     }
-    showMainMenu();
+    
+     while (true) {
+        showMainMenu();
+        int choise = -1;
+        // 接受菜单参数
+        cout << "请输入您的选择：" << endl;
+        cin >> choise;
+
+        switch (choise) {
+            case 1:  // [1] - 发布比赛规则
+            {
+                publishRules(this->m_contestStartTimestamp);
+                break;
+            }
+            case 2:  // [2] - 查看比赛规则
+            {
+                showRules();
+                break;
+            }
+            case 3:  // [3] - 选手信息管理
+            {
+                contestantMangement(this->m_contestStartTimestamp);
+                break;
+            }
+            case 4:  // [4] - 开始演讲比赛
+            {
+                startContest();
+                break;
+            }
+            case 5:  // [5] - 查看比赛记录
+            {
+                reviewHistory(this->m_contestStartTimestamp);
+                break;
+            }
+            case 6:  // [6] - 清空比赛记录
+            {
+                removeHistory(this->m_contestStartTimestamp);
+                break;
+            }
+            case 0:  // [0] - 退出    系统
+            {
+                // exitSystem();
+                break;
+            }
+            default: {
+                cout << "【错误】：输入有误，请重新选择！" << endl;
+                system("pause");
+                break;
+            }
+        }
+        if (choise == 0) {
+            if (this->m_unfinishedContests.size() == 0) {
+                exitSystem();
+            } else {
+                break;
+            }
+        }
+    }
 }
 
 void SpeechManager::publishRules() {
@@ -392,17 +476,74 @@ void SpeechManager::exitSystem() {
     exit(0);
 }
 
-void SpeechManager::reviewHistory() {
-    if (this->m_contestProcess == PUBLISHING_RULES ||
-        this->m_contestProcess == RECRUITING_CONTESTANTS ||
-        this->m_contestProcess == OTHERS) {
+void SpeechManager::reviewAllHistory() {
+    system("cls");
+    coutHistoryRecord(m_historyRecord);
+    cout << "【提醒】：请选择需要查看的比赛历史记录序号：" << endl;
+    int contestNum = 0;
+    cin >> contestNum;
+    while (contestNum > this->m_historyRecord.size()) {
+        cout << "【错误】：输入的序号不在范围内，请重新输入。" << endl;
+        coutHistoryRecord(m_historyRecord);
+        cout << "【提醒】：请选择需要查看的比赛历史记录序号：" << endl;
+        cin >> contestNum;
+    }
+    auto historyIter = this->m_historyRecord.begin() + contestNum - 1;
+
+    string timestamp = historyIter->first;
+    ContestProcessType contestProcess = historyIter->second;
+
+    if (contestProcess == PUBLISHING_RULES ||
+        contestProcess == RECRUITING_CONTESTANTS || contestProcess == OTHERS) {
         cout << "【提醒】：比赛尚未开始，还没有比赛记录。" << endl;
         system("pause");
         return;
     }
 
-    loadContestResult(this->m_contestStartTimestamp);
-    switch (this->m_contestProcess) {
+    loadContestResult(timestamp);
+    
+    // 选择查看级别
+    int choise = 0;
+    bool resultRange = true;
+    cout << "【提醒】：请选择比赛级别(0-初赛，1-复赛，2-决赛)：" << endl;
+    cin >> choise;
+
+    switch (choise) {
+        case 0: {  // 显示初赛成绩
+            cout << "【提醒】：请选择比赛结果查看范围(0-晋级选手结果，1-"
+                    "所有选手结果)："
+                 << endl;
+            cin >> resultRange;
+            showResultRecord(0, resultRange, this->m_resultRecord[0]);
+            break;
+        }
+        case 1: {  // 显示复赛成绩
+            if (this->m_contestProcess == PRELIMINARY) {
+                cout << "【提醒】：还未开始进行复赛，无复赛成绩。" << endl;
+                system("pause");
+                break;
+            }
+            cout << "【提醒】：请选择比赛结果查看范围(0-晋级选手结果，1-"
+                    "所有选手结果)："
+                 << endl;
+            cin >> resultRange;
+            showResultRecord(1, resultRange, this->m_resultRecord[1]);
+            break;
+        }
+        case 2: {  // 显示决赛成绩
+            if (this->m_contestProcess == PRELIMINARY ||
+                this->m_contestProcess == REMATCH) {
+                cout << "【提醒】：还未开始进行决赛，无决赛成绩。" << endl;
+                system("pause");
+                break;
+            }
+            cout << "【提醒】：请选择比赛结果查看范围(0-晋级选手结果，1-"
+                    "所有选手结果)："
+                 << endl;
+            cin >> resultRange;
+            showResultRecord(2, resultRange, this->m_resultRecord[2]);
+            break;
+        }
         default: break;
     }
 }
@@ -424,19 +565,39 @@ void SpeechManager::reviewHistory(const string &timestamp) {
     bool resultRange = true;
     cout << "【提醒】：请选择比赛级别(0-初赛，1-复赛，2-决赛)：" << endl;
     cin >> choise;
-    cout << "【提醒】：请选择比赛结果查看范围(0-晋级选手结果，1-所有选手结果)："
-         << endl;
-    cin >> resultRange;
+    
     switch (choise) {
         case 0:{// 显示初赛成绩
+            cout << "【提醒】：请选择比赛结果查看范围(0-晋级选手结果，1-"
+                    "所有选手结果)："
+                 << endl;
+            cin >> resultRange;
             showResultRecord(0, resultRange, this->m_resultRecord[0]);
             break;
         }
         case 1:{// 显示复赛成绩
+            if (this->m_contestProcess == PRELIMINARY) {
+                cout << "【提醒】：还未开始进行复赛，无复赛成绩。" << endl;
+                system("pause");
+                break;
+            }
+            cout << "【提醒】：请选择比赛结果查看范围(0-晋级选手结果，1-"
+                    "所有选手结果)："
+                 << endl;
+            cin >> resultRange;
             showResultRecord(1, resultRange, this->m_resultRecord[1]);
             break;
         }
         case 2:{// 显示决赛成绩
+            if (this->m_contestProcess == PRELIMINARY || this->m_contestProcess == REMATCH) {
+                cout << "【提醒】：还未开始进行决赛，无决赛成绩。" << endl;
+                system("pause");
+                break;
+            }
+            cout << "【提醒】：请选择比赛结果查看范围(0-晋级选手结果，1-"
+                    "所有选手结果)："
+                 << endl;
+            cin >> resultRange;
             showResultRecord(2, resultRange, this->m_resultRecord[2]);
             break;
         }
@@ -601,7 +762,8 @@ void SpeechManager::showContinueMenu() {
          << "|                    主菜单                    |\n"
          << "|[1] - 开始新的比赛                            |\n"
          << "|[2] - 继续未完成的比赛                        |\n"
-         << "|[3] - 清除历史记录                            |\n"
+         << "|[3] - 查看历史记录                            |\n"
+         << "|[4] - 清除历史记录                            |\n"
          << "|[0] - 退出    系统                            |\n"
          << "------------------------------------------------" << endl;
 }
@@ -718,6 +880,7 @@ void SpeechManager::checkRecordExist(const string &timestamp,
         } else if ((unfinishedIter->first == timestamp) &&
                    (contestProcess == FINALS)) {
             this->m_unfinishedContests.erase(unfinishedIter);
+            return;
         }
     }
     if (unfinishedIter == this->m_unfinishedContests.end() && contestProcess != FINALS) {

@@ -67,7 +67,7 @@ public:
     void exitSystem();
 
     // 查看比赛记录
-    void reviewHistory();
+    void reviewAllHistory();
     void reviewHistory(const string &timestamp);
 
     // 清除历史记录

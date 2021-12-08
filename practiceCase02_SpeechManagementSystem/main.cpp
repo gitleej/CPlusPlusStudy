@@ -66,6 +66,8 @@ int main(int argc, char **argv)
             }else if(choise == 2) {
                 sm.continueContest();
             } else if (choise == 3) {
+                sm.reviewAllHistory();
+            } else if (choise == 4) {
                 sm.removeHistory();
             }
         } else {
